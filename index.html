@@ -22,7 +22,7 @@
   --line:#D8D4C6;
   --accent:#3E8E7E;
   --accent-dim:#2E6B5E;
-  --warn:#B5544A;
+  --warn:#D9695C;
   --gold:#C9A227;
   --dim:#8A90A3;
   --dim-2:#5A6076;
@@ -133,6 +133,7 @@ input,textarea,select{font-family:inherit;font-size:16px}
 .card::after{
   content:'';position:absolute;left:20px;right:20px;bottom:16px;height:1px;background:var(--line)
 }
+.card.bad{box-shadow:0 0 0 2.5px var(--warn),0 14px 34px rgba(0,0,0,.42)}
 .card.flip{animation:flip .3s ease}
 @keyframes flip{from{transform:rotateX(-8deg) scale(.97);opacity:.4}to{transform:none;opacity:1}}
 .word{font-family:var(--serif);font-size:38px;line-height:1.15;word-break:break-word}
@@ -140,6 +141,8 @@ input,textarea,select{font-family:inherit;font-size:16px}
 .word.phrase{font-size:26px}
 .tr{font-size:19px;color:var(--ink);font-weight:500}
 .hint{font-family:var(--mono);font-size:11px;color:var(--ink-soft);letter-spacing:.09em;text-transform:uppercase}
+.hint.ok{color:#2E7D6B;font-weight:700}
+.hint.no{color:#B03A2B;font-weight:700}
 .ex{font-family:var(--serif);font-size:15px;color:var(--ink-soft);font-style:italic;padding-top:4px}
 .ex b{font-style:normal;font-weight:600;color:var(--ink)}
 .speak{
@@ -150,13 +153,23 @@ input,textarea,select{font-family:inherit;font-size:16px}
 
 .opts{display:flex;flex-direction:column;gap:8px;padding:14px var(--pad) calc(14px + env(safe-area-inset-bottom))}
 .opt{
-  background:var(--ground-2);border-radius:12px;padding:15px 16px;text-align:left;
+  position:relative;background:var(--ground-2);border-radius:12px;padding:15px 16px;text-align:left;
   font-size:16px;border:1.5px solid transparent;transition:.12s
 }
 .opt:active{background:var(--ground-3)}
-.opt.ok{background:rgba(62,142,126,.17);border-color:var(--accent);color:#8FDCC9}
-.opt.no{background:rgba(181,84,74,.15);border-color:var(--warn);color:#E2A19A}
-.opt[disabled]{opacity:.45}
+.opt.ok,.opt.no{font-weight:600;padding-right:46px}
+.opt.ok{background:rgba(62,142,126,.32);border-color:var(--accent);color:#B4EDDC}
+.opt.no{background:rgba(217,105,92,.30);border-color:var(--warn);color:#FFC3BA;animation:shake .32s}
+.opt.ok::after,.opt.no::after{
+  position:absolute;right:15px;top:50%;transform:translateY(-50%);
+  font-size:16px;font-weight:700;line-height:1
+}
+.opt.ok::after{content:'✓';color:#3FD3B0}
+.opt.no::after{content:'✕';color:#FF8B7D}
+.opt[disabled]{opacity:1}
+.opt[disabled]:not(.ok):not(.no){opacity:.28}
+@keyframes shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.nextbtn{margin-top:4px}
 
 .typebox{padding:14px var(--pad) calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:9px}
 .typebox input{
@@ -744,7 +757,8 @@ function nextCard(){
   document.getElementById('ladderCap').textContent = box>=BOXES? 'выучено' : 'коробка '+box+' из '+BOXES;
 
   const card=document.getElementById('card');
-  card.classList.remove('flip'); void card.offsetWidth; card.classList.add('flip');
+  card.classList.remove('flip','bad'); void card.offsetWidth; card.classList.add('flip');
+  document.getElementById('cHint').className='hint';
   document.getElementById('cTr').style.display='none';
   document.getElementById('cEx').style.display='none';
 
@@ -841,6 +855,12 @@ function reveal(ok){
 
   if(ok){ right++; } else { missed.push(cur); }
 
+  const hint=document.getElementById('cHint');
+  hint.className='hint '+(ok?'ok':'no');
+  hint.textContent = ok ? 'верно' : 'ошибка — слово вернётся сегодня';
+  if(!ok) document.getElementById('card').classList.add('bad');
+  try{ if(navigator.vibrate) navigator.vibrate(ok?18:[45,60,45]); }catch(e){}
+
   document.getElementById('cTr').textContent=cur.ru;
   document.getElementById('cTr').style.display='';
   if(cur.ex){
@@ -858,8 +878,13 @@ function reveal(ok){
     const cb=document.getElementById('checkBtn');
     cb.textContent='Дальше'; cb.onclick=advance;
     document.getElementById('skipBtn').style.visibility='hidden';
+  } else if(ok){
+    setTimeout(advance,950);
   } else {
-    setTimeout(advance, ok?1000:2100);
+    const nb=document.createElement('button');
+    nb.className='btn ghost nextbtn'; nb.textContent='Дальше';
+    nb.onclick=advance;
+    document.getElementById('opts').appendChild(nb);
   }
 }
 function highlight(ex,en){
