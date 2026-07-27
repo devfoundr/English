@@ -170,6 +170,13 @@ input,textarea,select{font-family:inherit;font-size:16px}
 .opt[disabled]:not(.ok):not(.no){opacity:.28}
 @keyframes shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 .nextbtn{margin-top:4px}
+.btn.arming{position:relative;overflow:hidden}
+.btn.arming i.drain{
+  position:absolute;left:0;bottom:0;height:3px;width:100%;background:var(--accent);
+  transform-origin:left;animation:drain linear forwards
+}
+@keyframes drain{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+.ex{transition:none}
 
 .typebox{padding:14px var(--pad) calc(14px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:9px}
 .typebox input{
@@ -321,6 +328,11 @@ input,textarea,select{font-family:inherit;font-size:16px}
     <div class="field">
       <label>Карточек в подходе</label>
       <div class="row" id="sizeRow"></div>
+    </div>
+    <div class="field">
+      <label>Пауза на верном ответе</label>
+      <div class="row" id="pauseRow"></div>
+      <div class="note" style="margin-top:7px">Сколько карточка висит с переводом и примером, прежде чем перелистнуться. «Вручную» — ждать нажатия. На ошибке пауза всегда до нажатия.</div>
     </div>
     <div class="field">
       <label>Озвучка</label>
@@ -629,7 +641,8 @@ const Store={
 };
 
 let S={ cards:{}, custom:[], decks:['v','n','a'], size:12,
-        sound:1, streak:0, lastDay:'', ver:1 };
+        sound:1, pause:3000, streak:0, lastDay:'', ver:1 };
+let autoT=null;
 
 const today=()=>new Date().toISOString().slice(0,10);
 const addDays=n=>{const d=new Date();d.setDate(d.getDate()+n);return d.toISOString().slice(0,10);};
@@ -741,6 +754,9 @@ function quitSession(){ save(); go('s-home'); }
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 function nextCard(){
+  clearTimeout(autoT); autoT=null;
+  const cbx=document.getElementById('checkBtn');
+  cbx.classList.remove('arming'); cbx.querySelectorAll('i.drain').forEach(e=>e.remove());
   if(qi>=Q.length) return finish();
   cur=Q[qi]; answered=false;
   const s=st(cur.id), box=s.box||1;
@@ -874,24 +890,42 @@ function reveal(ok){
   document.getElementById('ladderCap').textContent =
     nb>=BOXES ? 'выучено' : (ok? 'вернётся через '+GAP[nb-1]+' '+plural(GAP[nb-1],'день','дня','дней') : 'вернётся сегодня');
 
+  clearTimeout(autoT); autoT=null;
   if(cur._mode==='type'){
     const cb=document.getElementById('checkBtn');
     cb.textContent='Дальше'; cb.onclick=advance;
     document.getElementById('skipBtn').style.visibility='hidden';
+    if(ok) arm(cb);
   } else if(ok){
-    setTimeout(advance,950);
+    arm(mkNext());
   } else {
-    const nb=document.createElement('button');
-    nb.className='btn ghost nextbtn'; nb.textContent='Дальше';
-    nb.onclick=advance;
-    document.getElementById('opts').appendChild(nb);
+    mkNext();
   }
 }
 function highlight(ex,en){
   const esc=en.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
   try{ return ex.replace(new RegExp('\\b('+esc+')','i'),'<b>$1</b>'); }catch(e){ return ex; }
 }
-function advance(){ qi++; save(); nextCard(); }
+function mkNext(){
+  const nb=document.createElement('button');
+  nb.className='btn ghost nextbtn'; nb.textContent='Дальше';
+  nb.onclick=advance;
+  document.getElementById('opts').appendChild(nb);
+  return nb;
+}
+/* Запускает обратный отсчёт до следующей карточки.
+   Полоска на кнопке показывает, сколько осталось. Тап — сразу дальше. */
+function arm(btn){
+  if(!S.pause) return;                       // 0 = ждать нажатия
+  btn.querySelectorAll('i.drain').forEach(e=>e.remove());
+  const bar=document.createElement('i');
+  bar.className='drain';
+  bar.style.animationDuration=S.pause+'ms';
+  btn.classList.add('arming');
+  btn.appendChild(bar);
+  autoT=setTimeout(advance,S.pause);
+}
+function advance(){ clearTimeout(autoT); autoT=null; qi++; save(); nextCard(); }
 
 function finish(){
   document.getElementById('track').style.width='100%';
@@ -980,6 +1014,14 @@ function renderSet(){
     b.onclick=()=>{S.size=n;save();renderSet();render();};
     sr.appendChild(b);
   });
+  const pr=document.getElementById('pauseRow'); pr.innerHTML='';
+  [['1,5 с',1500],['3 с',3000],['5 с',5000],['вручную',0]].forEach(([t,v])=>{
+    const b=document.createElement('button');
+    b.className='btn '+(S.pause===v?'':'ghost'); b.textContent=t;
+    b.style.fontSize='14px'; b.style.padding='14px 4px';
+    b.onclick=()=>{S.pause=v;save();renderSet();};
+    pr.appendChild(b);
+  });
   const so=document.getElementById('soundRow'); so.innerHTML='';
   [['Включена',1],['Выключена',0]].forEach(([t,v])=>{
     const b=document.createElement('button');
@@ -1008,7 +1050,7 @@ function importData(){
 }
 function resetAll(){
   if(!confirm('Удалить весь прогресс и свои слова?')) return;
-  S={cards:{},custom:[],decks:['v','n','a'],size:12,sound:1,streak:0,lastDay:'',ver:1};
+  S={cards:{},custom:[],decks:['v','n','a'],size:12,sound:1,pause:3000,streak:0,lastDay:'',ver:1};
   syncCustom(); save(); render(); go('s-home'); toast('Сброшено');
 }
 
