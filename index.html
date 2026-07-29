@@ -34,6 +34,7 @@
 }
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
 body{
   margin:0;background:var(--ground);color:#E7E9EF;font-family:var(--sans);
   font-size:16px;line-height:1.45;
@@ -143,12 +144,15 @@ input,textarea,select{font-family:inherit;font-size:16px}
 .hint{font-family:var(--mono);font-size:11px;color:var(--ink-soft);letter-spacing:.09em;text-transform:uppercase}
 .hint.ok{color:#2E7D6B;font-weight:700}
 .hint.no{color:#B03A2B;font-weight:700}
-.ex{font-family:var(--serif);font-size:15px;color:var(--ink-soft);font-style:italic;padding-top:4px}
-.ex b{font-style:normal;font-weight:600;color:var(--ink)}
-.exru{
-  font-size:14px;color:var(--ink-soft);line-height:1.4;
-  padding-top:5px;margin-top:5px;border-top:1px solid var(--line)
+.ex{font-family:var(--serif);font-size:17.5px;color:var(--ink);font-style:italic;padding-top:6px;line-height:1.35}
+.ex b{font-style:normal;font-weight:700}
+.exwrap{margin-top:7px;padding-top:7px;border-top:1px solid var(--line)}
+.exru{font-size:12.5px;color:#9A9EAA;line-height:1.35;font-weight:400}
+.exbtn{
+  font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;
+  color:#A9ACB6;padding:3px 10px;border-radius:20px;background:rgba(34,37,47,.05)
 }
+.exbtn:active{background:rgba(34,37,47,.13)}
 .speak{
   position:absolute;top:12px;right:12px;width:34px;height:34px;border-radius:9px;
   background:rgba(34,37,47,.07);display:grid;place-items:center;font-size:15px;color:var(--ink-soft)
@@ -276,7 +280,10 @@ input,textarea,select{font-family:inherit;font-size:16px}
       <div class="word" id="cWord"></div>
       <div class="tr" id="cTr" style="display:none"></div>
       <div class="ex" id="cEx" style="display:none"></div>
-      <div class="exru" id="cExRu" style="display:none"></div>
+      <div class="exwrap" id="cExWrap" style="display:none">
+        <button class="exbtn" id="cExBtn" onclick="showTr()">перевод</button>
+        <div class="exru" id="cExRu" style="display:none"></div>
+      </div>
     </div>
   </div>
 
@@ -339,6 +346,11 @@ input,textarea,select{font-family:inherit;font-size:16px}
       <label>Пауза на верном ответе</label>
       <div class="row" id="pauseRow"></div>
       <div class="note" style="margin-top:7px">Сколько карточка висит с переводом и примером, прежде чем перелистнуться. «Вручную» — ждать нажатия. На ошибке пауза всегда до нажатия.</div>
+    </div>
+    <div class="field">
+      <label>Перевод примера</label>
+      <div class="row" id="trRow"></div>
+      <div class="note" style="margin-top:7px">«По тапу» — сначала пробуешь понять английскую фразу сам. Открыл перевод — отсчёт до следующей карточки останавливается.</div>
     </div>
     <div class="field">
       <label>Озвучка</label>
@@ -647,7 +659,7 @@ const Store={
 };
 
 let S={ cards:{}, custom:[], decks:['v','n','a'], size:12,
-        sound:1, pause:3000, streak:0, lastDay:'', ver:1 };
+        sound:1, pause:3000, showTr:0, streak:0, lastDay:'', ver:1 };
 let autoT=null;
 
 const today=()=>new Date().toISOString().slice(0,10);
@@ -783,7 +795,9 @@ function nextCard(){
   document.getElementById('cHint').className='hint';
   document.getElementById('cTr').style.display='none';
   document.getElementById('cEx').style.display='none';
+  document.getElementById('cExWrap').style.display='none';
   document.getElementById('cExRu').style.display='none';
+  document.getElementById('cExBtn').style.display='';
 
   // режим: 1–2 узнавание EN→RU, 3 выбор RU→EN, 4+ ввод руками
   const mode = box<=2 ? 'recog' : (box===3 ? 'choice-ru' : 'type');
@@ -892,7 +906,8 @@ function reveal(ok){
   }
   if(cur.exRu){
     document.getElementById('cExRu').textContent=cur.exRu;
-    document.getElementById('cExRu').style.display='';
+    document.getElementById('cExWrap').style.display='';
+    if(S.showTr) showTr(true);
   }
   if(cur._mode!=='recog'&&S.sound) speak(cur.en);
 
@@ -916,6 +931,17 @@ function reveal(ok){
 function highlight(ex,en){
   const esc=en.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
   try{ return ex.replace(new RegExp('\\b('+esc+')','i'),'<b>$1</b>'); }catch(e){ return ex; }
+}
+/* Открывает перевод примера. Если открыл вручную — значит фраза не далась,
+   и отсчёт до следующей карточки останавливается. */
+function showTr(auto){
+  document.getElementById('cExRu').style.display='';
+  document.getElementById('cExBtn').style.display='none';
+  if(auto) return;
+  clearTimeout(autoT); autoT=null;
+  document.querySelectorAll('.btn.arming').forEach(b=>{
+    b.classList.remove('arming'); b.querySelectorAll('i.drain').forEach(e=>e.remove());
+  });
 }
 function mkNext(){
   const nb=document.createElement('button');
@@ -1034,6 +1060,13 @@ function renderSet(){
     b.onclick=()=>{S.pause=v;save();renderSet();};
     pr.appendChild(b);
   });
+  const tr=document.getElementById('trRow'); tr.innerHTML='';
+  [['По тапу',0],['Сразу',1]].forEach(([t,v])=>{
+    const b=document.createElement('button');
+    b.className='btn '+((S.showTr?1:0)===v?'':'ghost'); b.textContent=t;
+    b.onclick=()=>{S.showTr=v;save();renderSet();};
+    tr.appendChild(b);
+  });
   const so=document.getElementById('soundRow'); so.innerHTML='';
   [['Включена',1],['Выключена',0]].forEach(([t,v])=>{
     const b=document.createElement('button');
@@ -1062,7 +1095,7 @@ function importData(){
 }
 function resetAll(){
   if(!confirm('Удалить весь прогресс и свои слова?')) return;
-  S={cards:{},custom:[],decks:['v','n','a'],size:12,sound:1,pause:3000,streak:0,lastDay:'',ver:1};
+  S={cards:{},custom:[],decks:['v','n','a'],size:12,sound:1,pause:3000,showTr:0,streak:0,lastDay:'',ver:1};
   syncCustom(); save(); render(); go('s-home'); toast('Сброшено');
 }
 
