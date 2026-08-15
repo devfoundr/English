@@ -146,6 +146,13 @@ input,textarea,select{font-family:inherit;font-size:16px}
 .hint.no{color:#B03A2B;font-weight:700}
 .ex{font-family:var(--serif);font-size:17.5px;color:var(--ink);font-style:italic;padding-top:6px;line-height:1.35}
 .ex b{font-style:normal;font-weight:700}
+.ipa{font-family:var(--mono);font-size:13px;color:var(--ink-soft);letter-spacing:.02em;margin-top:-2px}
+.why{
+  font-size:13.5px;color:var(--ink-soft);line-height:1.5;text-align:left;
+  margin-top:9px;padding-top:9px;border-top:1px solid var(--line)
+}
+.why b{color:var(--ink);font-weight:700}
+.word.gap{font-size:23px;line-height:1.35;font-family:var(--serif)}
 .exwrap{margin-top:7px;padding-top:7px;border-top:1px solid var(--line)}
 .exru{font-size:12.5px;color:#9A9EAA;line-height:1.35;font-weight:400}
 .exbtn{
@@ -278,8 +285,10 @@ input,textarea,select{font-family:inherit;font-size:16px}
       <button class="speak" id="speakBtn" onclick="speakCurrent()">🔊</button>
       <div class="hint" id="cHint"></div>
       <div class="word" id="cWord"></div>
+      <div class="ipa" id="cIpa" style="display:none"></div>
       <div class="tr" id="cTr" style="display:none"></div>
       <div class="ex" id="cEx" style="display:none"></div>
+      <div class="why" id="cWhy" style="display:none"></div>
       <div class="exwrap" id="cExWrap" style="display:none">
         <button class="exbtn" id="cExBtn" onclick="showTr()">перевод</button>
         <div class="exru" id="cExRu" style="display:none"></div>
@@ -374,8 +383,27 @@ input,textarea,select{font-family:inherit;font-size:16px}
 
 </div>
 <div class="toast" id="toast"></div>
+<noscript><div><img src="https://mc.yandex.ru/watch/111638890" style="position:absolute;left:-9999px" alt=""></div></noscript>
 
 <script>
+/* ============================================================
+   СЧЁТЧИК ПОСЕЩЕНИЙ
+   Вставь сюда номер счётчика Яндекс.Метрики.
+   Пока стоит 0 — статистика не собирается, приложение работает как обычно.
+   ============================================================ */
+const METRIKA_ID = 111638890;
+
+function ym_goal(name){
+  try{ if(METRIKA_ID && window.ym) ym(METRIKA_ID,'reachGoal',name); }catch(e){}
+}
+if(METRIKA_ID){
+  (function(m,e,t,r,i,k,a){m[i]=m[i]||function(){(m[i].a=m[i].a||[]).push(arguments)};
+  m[i].l=1*new Date();k=e.createElement(t),a=e.getElementsByTagName(t)[0];
+  k.async=1;k.src=r;a.parentNode.insertBefore(k,a)})
+  (window,document,'script','https://mc.yandex.ru/metrika/tag.js','ym');
+  ym(METRIKA_ID,'init',{clickmap:false,trackLinks:true,accurateTrackBounce:true,webvisor:false});
+}
+
 /* ============================================================
    СЛОВАРЬ
    ============================================================ */
@@ -640,8 +668,65 @@ const DECKS = [
     ['owner','владелец','The owner of the company.','Владелец компании.'],
     ['team','команда','A small team.','Небольшая команда.'],
   ]},
+  {id:'l', name:'Уроки 1–3', desc:'словарь из чата, с произношением', words:[
+    ['hello','привет','Hello! My name is Nikolai.','Привет! Меня зовут Николай.','хэло́у'],
+    ['thanks','спасибо','Thanks for your help.','Спасибо за помощь.','сэнкс'],
+    ['yes','да','Yes, I am ready.','Да, я готов.','йес'],
+    ['no','нет','No, not today.','Нет, не сегодня.','ноу'],
+    ['nice','приятный, славный','Nice to meet you.','Приятно познакомиться.','найс'],
+    ['age','возраст','What is your age?','Сколько тебе лет?','эйдж'],
+    ['founder','основатель','I am a founder.','Я основатель.','фа́ундэр'],
+    ['platform','платформа','A platform for dentists.','Платформа для стоматологов.','плэ́тформ'],
+    ['dentist','стоматолог','My clients are dentists.','Мои клиенты — стоматологи.','дэ́нтист'],
+    ['dental','стоматологический','A dental laboratory.','Зуботехническая лаборатория.','дэ́нтл'],
+    ['Monday','понедельник','We start on Monday.','Мы начинаем в понедельник.','ма́ндэй'],
+    ['Tuesday','вторник','The meeting is on Tuesday.','Встреча во вторник.','тью́здэй'],
+    ['Wednesday','среда','I am free on Wednesday.','В среду я свободен.','уэ́нздэй'],
+    ['Thursday','четверг','Call me on Thursday.','Позвони мне в четверг.','сёрздэй'],
+    ['Friday','пятница','The deadline is on Friday.','Срок — пятница.','фра́йдэй'],
+    ['Saturday','суббота','I go to the gym on Saturday.','В субботу я хожу в зал.','сэ́тэдэй'],
+    ['Sunday','воскресенье','I do not work on Sunday.','По воскресеньям я не работаю.','са́ндэй'],
+    ['in the morning','утром','I work in the morning.','Утром я работаю.','ин зэ мо́рнинг'],
+    ['in the afternoon','днём','I eat in the afternoon.','Днём я обедаю.','ин зэ афтэну́н'],
+    ['in the evening','вечером','I read in the evening.','Вечером я читаю.','ин зэ и́внинг'],
+    ['at night','ночью','I sleep at night.','Ночью я сплю.','эт найт'],
+    ['at work','на работе','I am at work now.','Я сейчас на работе.','эт вёрк'],
+    ['a week','в неделю','Three days a week.','Три дня в неделю.','э вик'],
+    ['gym','спортзал','I go to the gym.','Я хожу в спортзал.','джим'],
+    ['at seven','в семь','I get up at seven.','Я встаю в семь.','эт сэ́вн'],
+    ['at midnight','в полночь','He came at midnight.','Он пришёл в полночь.','эт ми́днайт'],
+    ['today','сегодня','I am busy today.','Сегодня я занят.','тудэ́й'],
+    ['tomorrow','завтра','See you tomorrow.','Увидимся завтра.','тумо́роу'],
+    ['yesterday','вчера','I finished it yesterday.','Я закончил это вчера.','йе́стэдэй'],
+    ['every day','каждый день','I study English every day.','Я учу английский каждый день.','э́ври дэй'],
+  ]},
+  {id:'g', name:'Грамматика', desc:'правила и твои частые ошибки', rules:true, words:[]},
   {id:'my', name:'Мои слова', desc:'добавляешь сам', words:[]}
 ];
+
+const RULES=[
+  ['I ___ to work at eight.','go','am go|going|am going to','Действие в настоящем — просто глагол. <b>I\'m</b> ставится только перед состоянием или ролью: I\'m tired, I\'m a founder.'],
+  ['I ___ a SaaS platform.','develop','am develop|develops','Та же ошибка, что и с <b>I\'m go</b>. После <b>I</b> глагол идёт в чистом виде: I develop, I work, I make.'],
+  ['I ___ founder of a SaaS platform.','am a','am|is a|founder','Перед профессией или ролью всегда артикль <b>a</b>: a founder, a doctor, a developer. И глагол <b>am</b> обязателен.'],
+  ['I go to the gym three days ___.','a week','on the week|in week|per the week','<b>Three days a week</b> — запомни целиком как фразу. Предлог <b>on</b> здесь не работает.'],
+  ['I write code ___.','at work','in the works|on work|in work','<b>At work</b> — на работе. <b>In the works</b> значит совсем другое: «в разработке, готовится».'],
+  ['My company ___ dental labs.','helps','help|is help','Третье лицо единственного числа — <b>he, she, it</b> и любая компания — требует окончания <b>-s</b>: he works, she goes, the company helps.'],
+  ['She ___ my friend.','is','are|am|be','<b>He / She / It</b> → <b>is</b>. Сокращённо: She\'s my friend.'],
+  ['They ___ from Russia.','are','is|am|be','<b>We / You / They</b> → <b>are</b>. Только <b>I</b> берёт <b>am</b>.'],
+  ['The meeting is ___ Friday.','on','in|at|to','Перед днями недели всегда <b>on</b>: on Monday, on Friday.'],
+  ['I get up ___ seven.','at','in|on|to','Перед точным временем всегда <b>at</b>: at seven, at 6 pm, at noon.'],
+  ['I work ___ the morning.','in','at|on|by','Утро, день, вечер — <b>in the</b>. А ночь выпадает из правила: <b>at night</b>.'],
+  ['I sleep ___ night.','at','in the|on|in','<b>At night</b> — исключение. Просто запомни, логики тут нет.'],
+  ['My clients are ___.','dentists','stomatologs|dentals|stomatologists','<b>Stomatolog</b> — калька с русского, по-английски так не говорят. Зубной врач — <b>dentist</b>, клиника — <b>dental clinic</b>.'],
+  ['I need ___ hour to finish.','an','a|the|—','Перед гласным звуком артикль <b>a</b> превращается в <b>an</b>. В слове <b>hour</b> буква h не читается, поэтому an hour.'],
+  ['___ your name?','What is','How is|What are|Who is','«Как тебя зовут» по-английски дословно «что твоё имя»: <b>What is your name?</b> Через <b>how</b> — русская калька.'],
+  ['I ___ English every day.','study','am study|studying|am studying every','Регулярное действие — простое настоящее без <b>am</b>: I study, I read, I run.'],
+  ['He ___ not work on Sunday.','does','do|is|are','Отрицание для <b>he / she / it</b> строится через <b>does not</b> (doesn\'t). Для I / we / they — <b>do not</b>.'],
+  ['Can I pay ___ card?','by','with|on|for','Способ оплаты — <b>by</b>: by card, by bank transfer. А вот наличными наоборот: <b>in cash</b>.'],
+  ['I am looking ___ this street.','for','—|to|at','<b>Look for</b> — искать. Без <b>for</b> получится «смотреть на», это другой смысл.'],
+  ['This is ___ than yesterday.','better','more better|gooder|more good','У <b>good</b> сравнительная степень нестандартная — <b>better</b>. Никакого <b>more</b> перед ней не нужно.'],
+];
+
 
 /* ============================================================
    ХРАНИЛИЩЕ
@@ -688,7 +773,14 @@ function allCards(deckIds){
   const out=[];
   DECKS.forEach(d=>{
     if(deckIds && !deckIds.includes(d.id)) return;
-    d.words.forEach(w=>out.push({id:d.id+'|'+w[0].toLowerCase(),deck:d.id,en:w[0],ru:w[1],ex:w[2]||'',exRu:w[3]||''}));
+
+        if(d.rules){
+      RULES.forEach((r,i)=>out.push({id:'g|'+i,deck:'g',type:'rule',
+        q:r[0],a:r[1],wrong:r[2].split('|'),why:r[3],
+        en:r[1],ru:r[0].replace('___','…'),ex:'',exRu:'',tr:''}));
+      return;
+    }
+    d.words.forEach(w=>out.push({id:d.id+'|'+w[0].toLowerCase(),deck:d.id,en:w[0],ru:w[1],ex:w[2]||'',exRu:w[3]||'',tr:w[4]||''}));
   });
   return out;
 }
@@ -722,8 +814,10 @@ function render(){
   const list=document.getElementById('deckList'); list.innerHTML='';
   DECKS.forEach(d=>{
     if(d.id==='my'&&!d.words.length) return;
-    const total=d.words.length;
-    const learned=d.words.filter(w=>st(d.id+'|'+w[0].toLowerCase()).box>=4).length;
+    const total=d.rules?RULES.length:d.words.length;
+    const learned=d.rules
+      ? RULES.filter((r,i)=>st('g|'+i).box>=4).length
+      : d.words.filter(w=>st(d.id+'|'+w[0].toLowerCase()).box>=4).length;
     const on=S.decks.includes(d.id);
     const b=document.createElement('button');
     b.className='deck'+(on?' on':'');
@@ -766,6 +860,8 @@ function startSession(){
     const done=shuffle(pool); Q=done.slice(0,S.size);
   }
   Q=shuffle(Q); qi=0; right=0; missed=[];
+  ym_goal('session_start');
+  if(!S.everStarted){ S.everStarted=1; ym_goal('first_session'); save(); }
   go('s-play'); nextCard();
 }
 function quitSession(){ save(); go('s-home'); }
@@ -795,19 +891,28 @@ function nextCard(){
   document.getElementById('cHint').className='hint';
   document.getElementById('cTr').style.display='none';
   document.getElementById('cEx').style.display='none';
+  document.getElementById('cIpa').style.display='none';
+  document.getElementById('cWhy').style.display='none';
   document.getElementById('cExWrap').style.display='none';
   document.getElementById('cExRu').style.display='none';
   document.getElementById('cExBtn').style.display='';
 
   // режим: 1–2 узнавание EN→RU, 3 выбор RU→EN, 4+ ввод руками
-  const mode = box<=2 ? 'recog' : (box===3 ? 'choice-ru' : 'type');
+  const mode = cur.type==='rule' ? 'rule'
+             : (box<=2 ? 'recog' : (box===3 ? 'choice-ru' : 'type'));
   cur._mode=mode;
 
   const w=document.getElementById('cWord');
   const hint=document.getElementById('cHint');
   const opts=document.getElementById('opts'), tb=document.getElementById('typebox');
 
-  if(mode==='recog'){
+  if(mode==='rule'){
+    w.textContent=cur.q; w.className='word gap';
+    hint.textContent='выбери верную форму';
+    document.getElementById('speakBtn').style.display='none';
+    buildRuleChoices();
+    opts.style.display=''; tb.style.display='none';
+  } else if(mode==='recog'){
     w.textContent=cur.en; w.className='word'+(cur.en.includes(' ')?' phrase':'');
     hint.textContent='что это значит';
     document.getElementById('speakBtn').style.display='';
@@ -835,6 +940,23 @@ function nextCard(){
   }
 }
 
+function buildRuleChoices(){
+  const items=shuffle([cur.a].concat(cur.wrong));
+  const box=document.getElementById('opts'); box.innerHTML='';
+  items.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.textContent=t;
+    b.onclick=()=>{
+      if(answered) return; answered=true;
+      [...document.querySelectorAll('#opts .opt')].forEach((x,i)=>{
+        x.disabled=true; if(items[i]===cur.a) x.classList.add('ok');
+      });
+      if(t!==cur.a) b.classList.add('no');
+      reveal(t===cur.a);
+    };
+    box.appendChild(b);
+  });
+}
 function buildChoices(field){
   const pool=allCards(S.decks).filter(c=>c.id!==cur.id);
   const wrong=shuffle(pool).slice(0,3);
@@ -898,6 +1020,20 @@ function reveal(ok){
   if(!ok) document.getElementById('card').classList.add('bad');
   try{ if(navigator.vibrate) navigator.vibrate(ok?18:[45,60,45]); }catch(e){}
 
+  if(cur.type==='rule'){
+    const full=cur.q.replace('___',cur.a);
+    document.getElementById('cTr').textContent=full;
+    document.getElementById('cTr').style.display='';
+    document.getElementById('cWhy').innerHTML=cur.why;
+    document.getElementById('cWhy').style.display='';
+    if(S.sound) speak(full);
+    finishReveal(ok); return;
+  }
+
+  if(cur.tr){
+    document.getElementById('cIpa').textContent='['+cur.tr+']';
+    document.getElementById('cIpa').style.display='';
+  }
   document.getElementById('cTr').textContent=cur.ru;
   document.getElementById('cTr').style.display='';
   if(cur.ex){
@@ -911,8 +1047,13 @@ function reveal(ok){
   }
   if(cur._mode!=='recog'&&S.sound) speak(cur.en);
 
-  const lad=[...document.querySelectorAll('#ladder u')];
-  lad.forEach((u,i)=>{ const n=i+1; u.className = n<nb?'done':(n===nb?'cur':''); });
+  finishReveal(ok);
+}
+function finishReveal(ok){
+  const nb=st(cur.id).box||1;
+  [...document.querySelectorAll('#ladder u')].forEach((u,i)=>{
+    const n=i+1; u.className = n<nb?'done':(n===nb?'cur':'');
+  });
   document.getElementById('ladderCap').textContent =
     nb>=BOXES ? 'выучено' : (ok? 'вернётся через '+GAP[nb-1]+' '+plural(GAP[nb-1],'день','дня','дней') : 'вернётся сегодня');
 
@@ -969,8 +1110,14 @@ function finish(){
   const pct=Q.length?Math.round(right/Q.length*100):0;
   document.getElementById('dScore').textContent=pct+'%';
   const t=today();
-  if(S.lastDay!==t){ S.streak=(S.streak||0)+1; S.lastDay=t; }
+  const isNewDay = S.lastDay!==t;
+  if(isNewDay){ S.streak=(S.streak||0)+1; S.lastDay=t; }
+  S.sessions=(S.sessions||0)+1;
   save();
+  ym_goal('session_done');
+  if(S.sessions===1) ym_goal('first_session_done');
+  if(isNewDay && S.streak===2) ym_goal('returned_day2');
+  if(isNewDay && S.streak===7) ym_goal('returned_day7');
   document.getElementById('dCap').textContent =
     pct>=90 ? 'Отлично. Эти слова вернутся нескоро.' :
     pct>=60 ? 'Нормальный подход. Ошибки вернутся сегодня же.' :
