@@ -242,6 +242,8 @@ input,textarea,select{font-family:inherit;font-size:16px}
 .les .bad{color:var(--warn);text-decoration:line-through;text-decoration-thickness:1px}
 .les .tip{background:var(--ground-2);border-radius:10px;padding:11px 13px;font-size:13.5px;margin:12px 0}
 .les .tip b:first-child{color:var(--gold)}
+.deck.lock{opacity:.5}
+.deck.lock .chk{border-color:transparent;color:var(--dim-2);font-size:13px}
 .toast{
   position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);
   background:var(--ground-3);color:#E7E9EF;padding:11px 18px;border-radius:11px;font-size:14px;
@@ -360,7 +362,7 @@ input,textarea,select{font-family:inherit;font-size:16px}
     <div><h1>Теория</h1><div class="sub">конспекты уроков из чата</div></div>
   </div>
   <div class="decks" id="lessonList" style="padding-bottom:24px"></div>
-  <div class="note" style="padding:0 var(--pad) 24px">Прочитал урок — иди в карточки: слова и правила из него уже в наборах «Уроки 1–3», «Уроки 4–8» и «Грамматика».</div>
+  <div class="note" style="padding:0 var(--pad) 24px">Уроки открываются по порядку: прошёл все слова урока в карточках — открылся следующий. Открыл урок — его набор слов включается сам.</div>
 </section>
 
 <!-- ================= УРОК ================= -->
@@ -794,6 +796,170 @@ const DECKS = [
     ['profit','прибыль','Profit is growing.','Прибыль растёт.','про́фит'],
     ['of course','конечно','Yes, of course!','Да, конечно!','ов кос'],
   ]},
+  {id:'l3', name:'Уроки 9–16', desc:'словарь курса, с произношением', words:[
+    ['can','могу, умею','I can drive.','Я умею водить.','кэн'],
+    ['can\'t','не могу, не умею','I can\'t swim.','Я не умею плавать.','кант'],
+    ['drive','водить машину','He drives to work.','Он ездит на работу на машине.','драйв'],
+    ['cook','готовить','I cook in the evening.','Вечером я готовлю.','кук'],
+    ['swim','плавать','We swim in summer.','Летом мы плаваем.','суи́м'],
+    ['remember','помнить','I remember this word.','Я помню это слово.','римэ́мбэ'],
+    ['understand','понимать','I understand you.','Я тебя понимаю.','андэстэ́нд'],
+    ['explain','объяснять','Can you explain it?','Можешь объяснить?','эксплэ́йн'],
+    ['well','хорошо','She cooks well.','Она хорошо готовит.','уэл'],
+    ['a little','немного','I speak English a little.','Я немного говорю по-английски.','э литл'],
+    ['there is','есть, имеется (ед.ч.)','There is a problem.','Есть проблема.','зэа из'],
+    ['there are','есть, имеются (мн.ч.)','There are two rooms.','Есть две комнаты.','зэа а'],
+    ['room','комната','A big room.','Большая комната.','рум'],
+    ['kitchen','кухня','The kitchen is small.','Кухня маленькая.','ки́чэн'],
+    ['window','окно','Open the window.','Открой окно.','уи́ндоу'],
+    ['floor','пол, этаж','On the second floor.','На втором этаже.','фло'],
+    ['wall','стена','A white wall.','Белая стена.','уол'],
+    ['chair','стул','Take a chair.','Возьми стул.','чеа'],
+    ['near','рядом, около','Near the office.','Рядом с офисом.','ниэ'],
+    ['empty','пустой','The room is empty.','Комната пустая.','э́мпти'],
+    ['now','сейчас','I am busy now.','Я сейчас занят.','нау'],
+    ['right now','прямо сейчас','Call me right now.','Позвони мне прямо сейчас.','райт нау'],
+    ['at the moment','в данный момент','He is out at the moment.','Его сейчас нет на месте.','эт зэ мо́умэнт'],
+    ['doing','делающий (что делаешь?)','What are you doing?','Что ты делаешь?','ду́инг'],
+    ['waiting','ожидающий','I am waiting for you.','Я тебя жду.','уэ́йтинг'],
+    ['calling','звонящий','Who is calling?','Кто звонит?','ко́линг'],
+    ['testing','тестирующий','I am testing the app.','Я тестирую приложение.','тэ́стинг'],
+    ['fixing','чинящий','He is fixing a bug.','Он чинит баг.','фи́ксинг'],
+    ['happening','происходящий','What is happening?','Что происходит?','хэ́пэнинг'],
+    ['busy with','занят чем-то','I am busy with a project.','Я занят проектом.','би́зи уиз'],
+    ['me','мне, меня','Call me.','Позвони мне.','ми'],
+    ['him','ему, его','Send him the file.','Отправь ему файл.','хим'],
+    ['her','ей, её','Tell her about it.','Расскажи ей об этом.','хё'],
+    ['us','нам, нас','Join us.','Присоединяйся к нам.','ас'],
+    ['them','им, их','I know them.','Я их знаю.','зэм'],
+    ['my','мой','My platform.','Моя платформа.','май'],
+    ['your','твой, ваш','Your turn.','Твоя очередь.','ё'],
+    ['his','его (чей)','His company.','Его компания.','хиз'],
+    ['our','наш','Our clients.','Наши клиенты.','а́уэ'],
+    ['their','их (чей)','Their office.','Их офис.','зэа'],
+    ['was','был (I/he/she/it)','I was at home.','Я был дома.','уоз'],
+    ['were','были (you/we/they)','We were in Serbia.','Мы были в Сербии.','уёр'],
+    ['wasn\'t','не был','It wasn\'t easy.','Это было непросто.','уо́знт'],
+    ['weren\'t','не были','They weren\'t ready.','Они не были готовы.','уёрнт'],
+    ['born','рождённый','I was born in 1990.','Я родился в 1990.','бон'],
+    ['alone','один, в одиночку','I work alone.','Я работаю один.','эло́ун'],
+    ['together','вместе','We work together.','Мы работаем вместе.','тугэ́зэ'],
+    ['at home','дома','I was at home.','Я был дома.','эт хо́ум'],
+    ['abroad','за границей','She lives abroad.','Она живёт за границей.','эбро́д'],
+    ['childhood','детство','In my childhood.','В моём детстве.','ча́йлдхуд'],
+    ['did','делал (вопрос о прошлом)','Did you sleep well?','Ты хорошо спал?','дид'],
+    ['didn\'t','не (прошлое)','I didn\'t know.','Я не знал.','ди́днт'],
+    ['last year','в прошлом году','I started it last year.','Я начал это в прошлом году.','ласт йиэ'],
+    ['last month','в прошлом месяце','We met last month.','Мы встречались в прошлом месяце.','ласт монс'],
+    ['then','тогда, потом','Then I went home.','Потом я пошёл домой.','зэн'],
+    ['recently','недавно','I read it recently.','Я недавно это читал.','ри́снтли'],
+    ['once','один раз, однажды','I was there once.','Я был там один раз.','уанс'],
+    ['twice','дважды','Check it twice.','Проверь это дважды.','туайс'],
+    ['how long','как долго','How long did it take?','Сколько это заняло?','хау лонг'],
+    ['at that time','в то время','At that time I lived in Moscow.','В то время я жил в Москве.','эт зэт тайм'],
+    ['would like','хотел бы','I would like a table for two.','Я бы хотел столик на двоих.','вуд лайк'],
+    ['I\'d like','я бы хотел (сокр.)','I\'d like a coffee.','Мне бы кофе.','айд лайк'],
+    ['order','заказ, заказывать','I\'d like to order.','Я хотел бы сделать заказ.','о́дэ'],
+    ['menu','меню','The menu, please.','Меню, пожалуйста.','мэ́нью'],
+    ['bill','счёт (в кафе)','The bill, please.','Счёт, пожалуйста.','бил'],
+    ['waiter','официант','Ask the waiter.','Спроси официанта.','уэ́йтэ'],
+    ['delicious','очень вкусный','It was delicious!','Было очень вкусно!','дили́шэс'],
+    ['recommend','рекомендовать','What do you recommend?','Что посоветуете?','рэкомэ́нд'],
+    ['reservation','бронь','I have a reservation.','У меня бронь.','рэзэвэ́йшн'],
+    ['takeaway','навынос','Two coffees takeaway.','Два кофе навынос.','тэ́йкэуэй'],
+    ['have to','приходится, вынужден','I have to work today.','Мне приходится сегодня работать.','хэв ту'],
+    ['must','обязан','You must have a passport.','У тебя обязан быть паспорт.','маст'],
+    ['mustn\'t','нельзя, запрещено','You mustn\'t smoke here.','Здесь нельзя курить.','маснт'],
+    ['should','стоит, следует','You should rest.','Тебе стоит отдохнуть.','шуд'],
+    ['shouldn\'t','не стоит','You shouldn\'t worry.','Тебе не стоит волноваться.','шу́днт'],
+    ['don\'t have to','не обязательно','You don\'t have to pay.','Платить не обязательно.','доунт хэв ту'],
+    ['necessary','необходимый','It is necessary.','Это необходимо.','нэ́сэсэри'],
+    ['rule','правило','A simple rule.','Простое правило.','рул'],
+    ['law','закон','It is the law.','Таков закон.','ло'],
+    ['allowed','разрешено','Parking is not allowed.','Парковка запрещена.','эла́уд'],
+  ]},
+  {id:'l4', name:'Уроки 17–24', desc:'словарь курса, с произношением', words:[
+    ['have done','сделал (к этому моменту)','I have done it.','Я это сделал.','хэв дан'],
+    ['have been','был, бывал','I have been to Serbia.','Я бывал в Сербии.','хэв бин'],
+    ['ever','когда-нибудь','Have you ever tried it?','Ты когда-нибудь это пробовал?','э́вэ'],
+    ['yet','ещё, пока (не)','Not yet.','Пока нет.','йет'],
+    ['just','только что','I have just finished.','Я только что закончил.','джаст'],
+    ['so far','пока что, на данный момент','So far so good.','Пока всё хорошо.','соу фа'],
+    ['experience','опыт','Ten years of experience.','Десять лет опыта.','экспи́эриэнс'],
+    ['tried','пробовал (3-я форма try)','I have tried twice.','Я пробовал дважды.','трайд'],
+    ['seen','видел (3-я форма see)','I have seen it.','Я это видел.','син'],
+    ['done','сделанный (3-я форма do)','The work is done.','Работа сделана.','дан'],
+    ['under','под','Under the table.','Под столом.','а́ндэ'],
+    ['next to','рядом с','Next to the bank.','Рядом с банком.','нэкст ту'],
+    ['behind','позади','Behind the building.','За зданием.','биха́йнд'],
+    ['in front of','перед','In front of the office.','Перед офисом.','ин франт ов'],
+    ['inside','внутри','Wait inside.','Подожди внутри.','инса́йд'],
+    ['outside','снаружи','It is cold outside.','Снаружи холодно.','аутса́йд'],
+    ['on the left','слева','The exit is on the left.','Выход слева.','он зэ лэфт'],
+    ['on the right','справа','The cafe is on the right.','Кафе справа.','он зэ райт'],
+    ['above','над','Above the door.','Над дверью.','эба́в'],
+    ['corner','угол','In the corner.','В углу.','ко́нэ'],
+    ['when','когда (связка)','Call me when you finish.','Позвони, когда закончишь.','уэн'],
+    ['while','пока, в то время как','I listen to music while I work.','Я слушаю музыку, пока работаю.','уайл'],
+    ['although','хотя','Although it was hard, we did it.','Хотя было трудно, мы это сделали.','олзо́у'],
+    ['however','однако','However, there is a problem.','Однако есть проблема.','хауэ́вэ'],
+    ['for example','например','For example, this one.','Например, вот этот.','фор эгза́мпл'],
+    ['that\'s why','вот почему','That\'s why I need English.','Вот почему мне нужен английский.','зэтс уай'],
+    ['by the way','кстати','By the way, nice work.','Кстати, отличная работа.','бай зэ уэй'],
+    ['anyway','в любом случае','Anyway, let\'s start.','В любом случае, начнём.','э́ниуэй'],
+    ['actually','вообще-то, на самом деле','Actually, it works.','Вообще-то, это работает.','э́кчуэли'],
+    ['in my opinion','по моему мнению','In my opinion, it is simple.','По-моему, это просто.','ин май опи́ньэн'],
+    ['some','несколько, немного','I have some questions.','У меня есть несколько вопросов.','сам'],
+    ['any','какой-либо (вопрос/отрицание)','Do you have any questions?','У тебя есть вопросы?','э́ни'],
+    ['much','много (несчитаемое)','How much does it cost?','Сколько это стоит?','мач'],
+    ['many','много (считаемое)','How many clients do you have?','Сколько у тебя клиентов?','мэ́ни'],
+    ['a lot of','много (любое)','A lot of work.','Много работы.','э лот ов'],
+    ['a few','несколько','A few days.','Несколько дней.','э фью'],
+    ['nothing','ничего','Nothing happened.','Ничего не случилось.','на́синг'],
+    ['everything','всё','Everything is fine.','Всё в порядке.','э́врисинг'],
+    ['somebody','кто-то','Somebody called you.','Кто-то тебе звонил.','са́мбоди'],
+    ['anybody','кто-нибудь','Is anybody here?','Здесь есть кто-нибудь?','э́нибоди'],
+    ['dear','уважаемый (в письме)','Dear Mr. Smith,','Уважаемый мистер Смит,','диэ'],
+    ['best regards','с уважением','Best regards, Nikolay.','С уважением, Николай.','бэст рига́дз'],
+    ['attached','во вложении','The file is attached.','Файл во вложении.','этэ́чт'],
+    ['reply','ответ, отвечать','Waiting for your reply.','Жду вашего ответа.','рипла́й'],
+    ['forward','переслать','Forward me the email.','Перешли мне письмо.','фо́вэд'],
+    ['urgent','срочный','It is urgent.','Это срочно.','ё́джэнт'],
+    ['regarding','касательно','Regarding the invoice.','Касательно счёта.','рига́динг'],
+    ['please find','смотрите (во вложении)','Please find attached the contract.','Во вложении договор.','плиз файнд'],
+    ['let me know','дай мне знать','Let me know if it works.','Дай знать, подходит ли.','лэт ми но́у'],
+    ['looking forward','с нетерпением жду','Looking forward to your reply.','С нетерпением жду ответа.','лу́кинг фо́вэд'],
+    ['appointment','назначенная встреча','I have an appointment at 3.','У меня встреча в 3.','эпо́йнтмэнт'],
+    ['postpone','переносить, откладывать','Can we postpone it?','Можем перенести?','постпо́ун'],
+    ['confirm','подтвердить','I confirm the meeting.','Подтверждаю встречу.','конфё́м'],
+    ['agenda','повестка встречи','What is on the agenda?','Что на повестке?','эджэ́нда'],
+    ['available','свободен, доступен','Are you available on Tuesday?','Ты свободен во вторник?','эвэ́йлэбл'],
+    ['suits me','мне подходит','Tuesday suits me.','Вторник мне подходит.','сьютс ми'],
+    ['deal','сделка, договорились','Deal!','Договорились!','дил'],
+    ['how\'s it going','как дела','How\'s it going?','Как дела?','хауз ит го́уинг'],
+    ['long time no see','давно не виделись','Long time no see!','Давно не виделись!','лонг тайм ноу си'],
+    ['in touch','на связи','Let\'s keep in touch.','Будем на связи.','ин тач'],
+    ['airport','аэропорт','See you at the airport.','Увидимся в аэропорту.','э́апот'],
+    ['flight','рейс, полёт','My flight is at 9.','Мой рейс в 9.','флайт'],
+    ['luggage','багаж','One bag of luggage.','Одна сумка багажа.','ла́гидж'],
+    ['passport','паспорт','Your passport, please.','Ваш паспорт, пожалуйста.','па́спот'],
+    ['customs','таможня','We passed customs.','Мы прошли таможню.','ка́стэмз'],
+    ['check-in','регистрация','Where is the check-in?','Где регистрация?','чек-и́н'],
+    ['booking','бронирование','I have a booking.','У меня бронь.','бу́кинг'],
+    ['rent','арендовать','I want to rent an apartment.','Я хочу снять квартиру.','рэнт'],
+    ['one-way ticket','билет в один конец','A one-way ticket to Belgrade.','Билет в один конец до Белграда.','уан-уэй ти́кит'],
+    ['currency','валюта','Where can I exchange currency?','Где обменять валюту?','ка́рэнси'],
+    ['introduce','представлять(ся)','Let me introduce myself.','Позвольте представиться.','интродью́с'],
+    ['in short','короче говоря','In short, it works.','Короче говоря, это работает.','ин шот'],
+    ['to sum up','подводя итог','To sum up, we are ready.','Подводя итог: мы готовы.','ту сам ап'],
+    ['overall','в целом','Overall, a good year.','В целом, хороший год.','оуверо́л'],
+    ['currently','в настоящее время','Currently I run two businesses.','Сейчас я веду два бизнеса.','ка́рэнтли'],
+    ['previously','ранее','Previously I worked in security.','Раньше я работал в безопасности.','при́виэсли'],
+    ['journey','путь, путешествие','It is a long journey.','Это долгий путь.','джё́ни'],
+    ['fluent','свободно говорящий','She is fluent in English.','Она свободно говорит по-английски.','флу́энт'],
+    ['keep going','продолжай','Keep going, you are close.','Продолжай, ты близко.','кип го́уинг'],
+    ['congratulations','поздравляю','Congratulations on the launch!','Поздравляю с запуском!','конгрэчулэ́йшнз'],
+  ]},
   {id:'g', name:'Грамматика', desc:'правила и твои частые ошибки', rules:true, words:[]},
   {id:'my', name:'Мои слова', desc:'добавляешь сам', words:[]}
 ];
@@ -832,6 +998,16 @@ const RULES=[
   ['He did not come to the ___.','meeting','meet|met|meets','<b>Meet</b> — глагол «встречать», <b>meeting</b> — существительное «встреча»: come to the meeting.'],
   ['— Can you help me? — Yes, ___!','of course','offcourse|ofcourse|off cause','<b>Of course</b> — «конечно». Два слова, пишется именно так.'],
   ['LabDesk costs 3,500 rubles ___ month.','per','in|on|for','Регулярная цена или доход — <b>per</b>: per month, per year.'],
+  ['I ___ drive.','can','can to|cans|am can','После <b>can</b> глагол в начальной форме, без to: I can drive, I can swim.'],
+  ['He can ___ very well.','cook','cooks|to cook|cooking','После can глагол без окончаний даже для he/she: He can cook.'],
+  ['___ a problem with the server.','There is','It is|There are|Is','Что-то где-то есть — <b>there is</b> + ед. число, there are + мн. число.'],
+  ['I am ___ for the bus now.','waiting','wait|waits|waited','Прямо сейчас — <b>am/is/are + -ing</b>: I am waiting, he is calling.'],
+  ['Send ___ the invoice.','him','he|his|hims','Кому — форма <b>him</b>: he → him, she → her, we → us, they → them.'],
+  ['I ___ in 1990.','was born','born|is born|were born','Родился — всегда <b>was born</b>: I was born in Nizhny Novgorod.'],
+  ['We ___ at home yesterday.','were','was|are|be','Прошедшее to be: I/he/she/it → <b>was</b>, we/you/they → <b>were</b>.'],
+  ['I would like ___ a coffee.','to order','order|ordering|orders','После <b>would like</b> глагол с to: I\'d like to order, I\'d like to rent.'],
+  ['I have ___ to Serbia twice.','been','be|was|being','Опыт «бывал» — <b>have been</b>: I have been to Serbia. Was — про конкретный момент.'],
+  ['Do you have ___ questions?','any','some|a|the','В вопросах и отрицаниях — <b>any</b>: any questions, not any time. В утверждениях — some.'],
 ];
 
 
@@ -1360,7 +1536,7 @@ function resetAll(){
    ТЕОРИЯ — КОНСПЕКТЫ УРОКОВ
    ============================================================ */
 const LESSONS=[
-{t:'Урок 1 · Глагол to be',d:'am, is, are — представиться',h:`
+{t:'Урок 1 · Глагол to be',d:'am, is, are — представиться',deck:'l',w:['hello','thanks','yes','no','nice','age','founder','platform','dentist','dental'],h:`
 <h3>Формы to be</h3>
 <table><tr><th>Кто</th><th>Форма</th><th>Сокращение</th></tr>
 <tr><td>I</td><td><b>am</b></td><td>I'm</td></tr>
@@ -1371,7 +1547,7 @@ const LESSONS=[
 <h3>Артикль a</h3>
 <p>Перед единственным исчисляемым существительным: <b>a</b> platform, <b>a</b> contract, <b>a</b> dentist. Перед именами и городами артикля нет: LabDesk, Nizhny Novgorod.</p>`},
 
-{t:'Урок 2 · Present Simple',d:'что делаешь регулярно',h:`
+{t:'Урок 2 · Present Simple',d:'что делаешь регулярно',deck:'l',w:['at work','a week','gym','today','every day'],h:`
 <h3>Формула</h3>
 <table><tr><th>Кто</th><th>Глагол</th><th>Пример</th></tr>
 <tr><td>I / You / We / They</td><td>без изменений</td><td>I <b>work</b></td></tr>
@@ -1383,7 +1559,7 @@ const LESSONS=[
 <p>После doesn't глагол без -s: <span class="bad">he doesn't works</span> → <span class="ok">he doesn't work</span>.</p>
 <div class="tip"><b>Твоя ошибка.</b> <span class="bad">I'm go</span>, <span class="bad">I'm develop</span> → <span class="ok">I go, I develop</span>. I'm — это состояние (I'm tired, I'm a founder). Для действия — просто глагол.</div>`},
 
-{t:'Урок 3 · Время и расписание',d:'утро, дни недели, часы',h:`
+{t:'Урок 3 · Время и расписание',d:'утро, дни недели, часы',deck:'l',w:['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday','in the morning','in the afternoon','in the evening','at night','at seven','at midnight','tomorrow','yesterday'],h:`
 <h3>Части дня</h3>
 <table><tr><th>Фраза</th><th>Перевод</th></tr>
 <tr><td><b>in the</b> morning / afternoon / evening</td><td>утром / днём / вечером</td></tr>
@@ -1396,7 +1572,7 @@ const LESSONS=[
 <p>Three days <b>a week</b> — три раза в неделю. <b>At work</b> — на работе.</p>
 <div class="tip"><b>Твоя ошибка.</b> <span class="bad">at evening</span> → <span class="ok">in the evening</span>; <span class="bad">go the office</span> → <span class="ok">go to the office</span>; <span class="bad">I and my friends</span> → <span class="ok">my friends and I</span> — «я» всегда последний.</div>`},
 
-{t:'Урок 4 · Вопросы',d:'What do you do? — разговор',h:`
+{t:'Урок 4 · Вопросы',d:'What do you do? — разговор',deck:'l2',w:['what','where','when','who','why','how','job','interesting'],h:`
 <h3>Вопросительные слова</h3>
 <table><tr><th>Слово</th><th>Перевод</th><th>Пример</th></tr>
 <tr><td>What</td><td>что, какой</td><td>What do you do?</td></tr>
@@ -1409,7 +1585,7 @@ const LESSONS=[
 <div class="tip"><b>Важно.</b> «What do you do?» — не «что ты делаешь сейчас», а «кем работаешь». Ответ: I'm a founder. I build a SaaS platform for dentists.</div>
 <p>Называние: My platform <b>is called</b> LabDesk. Порядок слов жёсткий — подлежащее, потом глагол.</p>`},
 
-{t:'Урок 5 · Past Simple',d:'что уже сделал',h:`
+{t:'Урок 5 · Past Simple',d:'что уже сделал',deck:'l2',w:['went','built','made','had','got','came','met','wrote','found','thought','took','spent','ago','last week'],h:`
 <h3>Правильные глаголы: + ed</h3>
 <p>work → work<b>ed</b>, start → start<b>ed</b>, finish → finish<b>ed</b>, help → help<b>ed</b></p>
 <h3>Неправильные — запомнить</h3>
@@ -1431,7 +1607,7 @@ const LESSONS=[
 <p>Маркеры: yesterday, last week, two years <b>ago</b>, in 2024.</p>
 <div class="tip"><b>Твоя ошибка.</b> <span class="bad">mouth</span> — это рот, месяц — <span class="ok">month</span>. И <span class="bad">come meet</span> → <span class="ok">come to the meeting</span>: meet — глагол, meeting — встреча.</div>`},
 
-{t:'Урок 6 · Будущее время',d:'will и going to',h:`
+{t:'Урок 6 · Будущее время',d:'will и going to',deck:'l2',w:['will','won\'t','soon','next week','reach','goal','per month','month'],h:`
 <h3>Два способа</h3>
 <table><tr><th>Способ</th><th>Когда</th><th>Пример</th></tr>
 <tr><td><b>will</b> + глагол</td><td>решил сейчас, обещание</td><td>I'll call you tomorrow</td></tr>
@@ -1441,7 +1617,7 @@ const LESSONS=[
 <p>Маркеры: tomorrow, next week, next month, soon, in the future.</p>
 <div class="tip"><b>Твоя ошибка.</b> <span class="bad">I'm go to launch</span> → <span class="ok">I'm going to launch</span>. И доход всегда <b>per month</b>: LabDesk will generate $15,000 per month.</div>`},
 
-{t:'Урок 7 · Прилагательные',d:'описания и сравнения',h:`
+{t:'Урок 7 · Прилагательные',d:'описания и сравнения',deck:'l2',w:['simple','useful','warm','modern','popular','comfortable','difficult','better','the best','than'],h:`
 <h3>Прилагательные не меняются</h3>
 <p><b>big</b> house, <b>big</b> company, <b>big</b> window — одна форма для всего. Место — перед существительным или после to be: LabDesk is <b>simple</b>. It's a <b>simple</b> platform.</p>
 <h3>Сравнение</h3>
@@ -1453,7 +1629,7 @@ const LESSONS=[
 <p>«Чем» в сравнении — всегда <b>than</b>: Serbia is cheaper <b>than</b> Russia.</p>
 <div class="tip"><b>Твоя ошибка.</b> <span class="bad">cheaper or Russia</span> → <span class="ok">cheaper than Russia</span>. И без артикля: <span class="bad">is a bigger than</span> → <span class="ok">is bigger than</span>.</div>`},
 
-{t:'Урок 8 · Числа, деньги, даты',d:'цифры в бизнесе',h:`
+{t:'Урок 8 · Числа, деньги, даты',d:'цифры в бизнесе',deck:'l2',w:['cost','earn','price','discount','free trial','profit','of course'],h:`
 <h3>Числа</h3>
 <p>1–10: one, two, three, four, five, six, seven, eight, nine, ten. Дальше: eleven (11), twelve (12), thirteen (13)… twenty (20), thirty (30), forty (40), fifty (50), one hundred (100), one thousand (1 000), one million.</p>
 <p>Составные: 35 = thirty-five, 150 = one hundred and fifty.</p>
@@ -1466,15 +1642,214 @@ const LESSONS=[
 <h3>Даты</h3>
 <p>Месяцы: January, February, March, April, May, June, July, August, September, October, November, December.</p>
 <p><b>In</b> 2024 — в году. <b>On</b> Monday, March 3rd — в конкретный день. <b>Of course</b> — конечно, два слова.</p>`},
+{t:'Урок 9 · Can — умею, могу',d:'способности и возможности',deck:'l3',w:['can','can\'t','drive','cook','swim','remember','understand','explain','well','a little'],h:`
+<h3>Формула</h3>
+<p><b>can</b> + глагол в начальной форме, без to и без -s — для всех лиц одинаково: I can, he can, they can.</p>
+<table><tr><th>Тип</th><th>Пример</th><th>Перевод</th></tr>
+<tr><td>Утверждение</td><td>I <b>can</b> drive</td><td>я умею водить</td></tr>
+<tr><td>Отрицание</td><td>I <b>can't</b> swim</td><td>я не умею плавать</td></tr>
+<tr><td>Вопрос</td><td><b>Can</b> you help me?</td><td>можешь мне помочь?</td></tr></table>
+<p>Ответы: Yes, I can. / No, I can't.</p>
+<p><span class="bad">I can to drive</span> → <span class="ok">I can drive</span>. <span class="bad">He can cooks</span> → <span class="ok">He can cook</span>.</p>
+<div class="tip"><b>Полезно.</b> I can speak English <b>a little</b> — я немного говорю по-английски. Скромно и честно, отличная фраза для старта разговора.</div>`},
+
+{t:'Урок 10 · There is / there are',d:'что где находится',deck:'l3',w:['there is','there are','room','kitchen','window','floor','wall','chair','near','empty'],h:`
+<h3>Формула</h3>
+<p>Когда говорим, что что-то где-то есть: <b>there is</b> + единственное число, <b>there are</b> + множественное.</p>
+<table><tr><th>Пример</th><th>Перевод</th></tr>
+<tr><td><b>There is</b> a problem with the server.</td><td>Есть проблема с сервером.</td></tr>
+<tr><td><b>There are</b> two rooms in the office.</td><td>В офисе две комнаты.</td></tr>
+<tr><td><b>Is there</b> a bank near here?</td><td>Здесь рядом есть банк?</td></tr>
+<tr><td>There <b>isn't</b> any coffee.</td><td>Кофе нет.</td></tr></table>
+<div class="tip"><b>Важно.</b> По-русски мы говорим «в офисе две комнаты» без глагола. По-английски глагол обязателен: <span class="bad">In the office two rooms</span> → <span class="ok">There are two rooms in the office</span>.</div>`},
+
+{t:'Урок 11 · Present Continuous',d:'что происходит прямо сейчас',deck:'l3',w:['now','right now','at the moment','doing','waiting','calling','testing','fixing','happening','busy with'],h:`
+<h3>Формула</h3>
+<p><b>am / is / are + глагол-ing</b> — действие происходит в момент речи.</p>
+<table><tr><th>Пример</th><th>Перевод</th></tr>
+<tr><td>I <b>am fixing</b> a bug right now.</td><td>Я прямо сейчас чиню баг.</td></tr>
+<tr><td>He <b>is calling</b> a client.</td><td>Он звонит клиенту.</td></tr>
+<tr><td>What <b>are</b> you <b>doing</b>?</td><td>Что ты делаешь (сейчас)?</td></tr></table>
+<h3>Сравни с Present Simple</h3>
+<table><tr><th>Время</th><th>Пример</th><th>Смысл</th></tr>
+<tr><td>Simple</td><td>I <b>work</b> at home</td><td>вообще, регулярно</td></tr>
+<tr><td>Continuous</td><td>I <b>am working</b> now</td><td>прямо сейчас</td></tr></table>
+<div class="tip"><b>Помнишь свою ошибку «I'm go»?</b> Теперь видно, откуда путаница: <b>I'm going</b> — правильная форма, но она значит «я иду прямо сейчас». Для регулярного — просто I go.</div>`},
+
+{t:'Урок 12 · Me, him, her — местоимения',d:'кому и чей',deck:'l3',w:['me','him','her','us','them','my','your','his','our','their'],h:`
+<h3>Кто → кому</h3>
+<table><tr><th>Кто (делает)</th><th>Кому/кого</th><th>Чей</th></tr>
+<tr><td>I</td><td><b>me</b></td><td><b>my</b></td></tr>
+<tr><td>you</td><td><b>you</b></td><td><b>your</b></td></tr>
+<tr><td>he</td><td><b>him</b></td><td><b>his</b></td></tr>
+<tr><td>she</td><td><b>her</b></td><td><b>her</b></td></tr>
+<tr><td>we</td><td><b>us</b></td><td><b>our</b></td></tr>
+<tr><td>they</td><td><b>them</b></td><td><b>their</b></td></tr></table>
+<p>Call <b>me</b> tomorrow. Send <b>him</b> the invoice. Tell <b>us</b> about it. <b>Their</b> office is big.</p>
+<p><span class="bad">Call to me</span> → <span class="ok">Call me</span> — после call предлог не нужен.</p>`},
+
+{t:'Урок 13 · Was / were',d:'прошедшее от to be',deck:'l3',w:['was','were','wasn\'t','weren\'t','born','alone','together','at home','abroad','childhood'],h:`
+<h3>Формы</h3>
+<table><tr><th>Кто</th><th>Форма</th><th>Отрицание</th></tr>
+<tr><td>I / He / She / It</td><td><b>was</b></td><td>wasn't</td></tr>
+<tr><td>You / We / They</td><td><b>were</b></td><td>weren't</td></tr></table>
+<p>I <b>was</b> at home yesterday. We <b>were</b> in Serbia last year. The meeting <b>wasn't</b> long.</p>
+<p>Вопрос — was/were вперёд: <b>Was</b> it interesting? <b>Were</b> you busy?</p>
+<div class="tip"><b>Важная фраза.</b> I <b>was born</b> in 1990 in Nizhny Novgorod — я родился. Всегда was born, не «borned».</div>`},
+
+{t:'Урок 14 · Вопросы о прошлом',d:'Did you...? — разговор о былом',deck:'l3',w:['did','didn\'t','last year','last month','then','recently','once','twice','how long','at that time'],h:`
+<h3>Формула</h3>
+<p><b>Did</b> + кто + глагол в начальной форме. Одна форма для всех лиц.</p>
+<table><tr><th>Пример</th><th>Перевод</th></tr>
+<tr><td><b>Did</b> you sleep well?</td><td>Ты хорошо спал?</td></tr>
+<tr><td>What <b>did</b> you do yesterday?</td><td>Что ты делал вчера?</td></tr>
+<tr><td>Where <b>did</b> he work before?</td><td>Где он работал раньше?</td></tr>
+<tr><td><b>How long did</b> it take?</td><td>Сколько времени это заняло?</td></tr></table>
+<p>Ответы: Yes, I did. / No, I didn't.</p>
+<p><span class="bad">Did you went?</span> → <span class="ok">Did you go?</span> — после did глагол возвращается в начальную форму.</p>
+<p><b>Once</b> — один раз, <b>twice</b> — дважды: I was there twice.</p>`},
+
+{t:'Урок 15 · Would like — вежливые просьбы',d:'кафе, ресторан, заказы',deck:'l3',w:['would like','I\'d like','order','menu','bill','waiter','delicious','recommend','reservation','takeaway'],h:`
+<h3>Формула вежливости</h3>
+<p><b>I would like</b> (сокращённо <b>I'd like</b>) + to + глагол или + существительное. Это вежливое «я хочу».</p>
+<table><tr><th>Пример</th><th>Перевод</th></tr>
+<tr><td><b>I'd like</b> a coffee, please.</td><td>Мне кофе, пожалуйста.</td></tr>
+<tr><td><b>I'd like to order</b>.</td><td>Я хотел бы сделать заказ.</td></tr>
+<tr><td>Can I have the <b>bill</b>, please?</td><td>Можно счёт?</td></tr>
+<tr><td>What do you <b>recommend</b>?</td><td>Что посоветуете?</td></tr></table>
+<div class="tip"><b>Разница.</b> I want a coffee — прямолинейно, так говорят близким. I'd like a coffee — вежливо, так говорят официанту. В Сербии пригодится каждый день.</div>`},
+
+{t:'Урок 16 · Have to / must / should',d:'обязанности и советы',deck:'l3',w:['have to','must','mustn\'t','should','shouldn\'t','don\'t have to','necessary','rule','law','allowed'],h:`
+<h3>Три уровня «надо»</h3>
+<table><tr><th>Слово</th><th>Сила</th><th>Пример</th></tr>
+<tr><td><b>must</b></td><td>обязан (правило, закон)</td><td>You must have a passport.</td></tr>
+<tr><td><b>have to</b></td><td>приходится (обстоятельства)</td><td>I have to work on Saturday.</td></tr>
+<tr><td><b>should</b></td><td>стоит, совет</td><td>You should sleep more.</td></tr></table>
+<h3>Отрицания — смысл меняется!</h3>
+<table><tr><th>Фраза</th><th>Смысл</th></tr>
+<tr><td><b>mustn't</b></td><td>нельзя, запрещено</td></tr>
+<tr><td><b>don't have to</b></td><td>не обязательно (но можно)</td></tr>
+<tr><td><b>shouldn't</b></td><td>не стоит</td></tr></table>
+<p>You <b>don't have to</b> pay — платить не обязательно. You <b>mustn't</b> smoke here — курить запрещено. Большая разница!</p>`},
+
+{t:'Урок 17 · Present Perfect',d:'I have done — опыт и результат',deck:'l4',w:['have done','have been','ever','yet','just','so far','experience','tried','seen','done'],h:`
+<h3>Формула</h3>
+<p><b>have / has + третья форма глагола</b>. Смысл: к текущему моменту что-то сделано или был опыт.</p>
+<table><tr><th>Пример</th><th>Перевод</th></tr>
+<tr><td>I <b>have been</b> to Serbia twice.</td><td>Я был в Сербии дважды (опыт).</td></tr>
+<tr><td>I <b>have just finished</b> the report.</td><td>Я только что закончил отчёт.</td></tr>
+<tr><td><b>Have</b> you <b>ever tried</b> sushi?</td><td>Ты когда-нибудь пробовал суши?</td></tr>
+<tr><td>I haven't done it <b>yet</b>.</td><td>Я ещё этого не сделал.</td></tr></table>
+<h3>Третьи формы — частые</h3>
+<p>do → <b>done</b>, be → <b>been</b>, see → <b>seen</b>, go → <b>gone</b>, make → <b>made</b>, build → <b>built</b>, write → <b>written</b>, take → <b>taken</b></p>
+<div class="tip"><b>Проще, чем кажется.</b> Если есть слова ever, never, just, already, yet — почти всегда нужен Present Perfect. Конкретное время (yesterday, in 2020) — обычный Past Simple.</div>`},
+
+{t:'Урок 18 · Предлоги места',d:'где что лежит и стоит',deck:'l4',w:['under','next to','behind','in front of','inside','outside','on the left','on the right','above','corner'],h:`
+<h3>Основные</h3>
+<table><tr><th>Предлог</th><th>Перевод</th><th>Пример</th></tr>
+<tr><td><b>in</b></td><td>в (внутри)</td><td>in the box, in the room</td></tr>
+<tr><td><b>on</b></td><td>на (поверхности)</td><td>on the table</td></tr>
+<tr><td><b>under</b></td><td>под</td><td>under the chair</td></tr>
+<tr><td><b>next to</b></td><td>рядом с</td><td>next to the window</td></tr>
+<tr><td><b>behind</b></td><td>позади</td><td>behind the building</td></tr>
+<tr><td><b>in front of</b></td><td>перед</td><td>in front of the office</td></tr>
+<tr><td><b>above</b></td><td>над</td><td>above the door</td></tr>
+<tr><td><b>between</b></td><td>между</td><td>between the bank and the cafe</td></tr></table>
+<p>The office is <b>on the left</b>. The server is <b>in the corner</b>. Wait <b>outside</b>, please.</p>`},
+
+{t:'Урок 19 · Связки речи',d:'соединяем предложения красиво',deck:'l4',w:['when','while','although','however','for example','that\'s why','by the way','anyway','actually','in my opinion'],h:`
+<h3>Слова-мостики</h3>
+<table><tr><th>Слово</th><th>Перевод</th><th>Пример</th></tr>
+<tr><td><b>when</b></td><td>когда</td><td>Call me when you finish.</td></tr>
+<tr><td><b>while</b></td><td>пока, в то время как</td><td>I listen to music while I work.</td></tr>
+<tr><td><b>although</b></td><td>хотя</td><td>Although it was hard, we did it.</td></tr>
+<tr><td><b>however</b></td><td>однако</td><td>However, there is a problem.</td></tr>
+<tr><td><b>that's why</b></td><td>вот почему</td><td>That's why I need English.</td></tr>
+<tr><td><b>actually</b></td><td>вообще-то</td><td>Actually, it works.</td></tr></table>
+<div class="tip"><b>Уровень выше.</b> Три коротких предложения подряд звучат по-детски. Одна связка — и речь взрослеет: I built LabDesk because dental labs work in Excel. That's why they need my platform.</div>`},
+
+{t:'Урок 20 · Some, any, much, many',d:'количества',deck:'l4',w:['some','any','much','many','a lot of','a few','nothing','everything','somebody','anybody'],h:`
+<h3>Some / any</h3>
+<table><tr><th>Где</th><th>Слово</th><th>Пример</th></tr>
+<tr><td>Утверждение</td><td><b>some</b></td><td>I have some questions.</td></tr>
+<tr><td>Вопрос</td><td><b>any</b></td><td>Do you have any questions?</td></tr>
+<tr><td>Отрицание</td><td><b>any</b></td><td>I don't have any time.</td></tr></table>
+<h3>Much / many / a lot of</h3>
+<table><tr><th>Слово</th><th>С чем</th><th>Пример</th></tr>
+<tr><td><b>many</b></td><td>считаемое</td><td>many clients, many orders</td></tr>
+<tr><td><b>much</b></td><td>несчитаемое</td><td>much time, much money</td></tr>
+<tr><td><b>a lot of</b></td><td>любое</td><td>a lot of work</td></tr></table>
+<p>How <b>many</b> clients do you have? How <b>much</b> does it cost? <b>A few</b> days — несколько дней.</p>`},
+
+{t:'Урок 21 · Деловая переписка',d:'письма и сообщения',deck:'l4',w:['dear','best regards','attached','reply','forward','urgent','regarding','please find','let me know','looking forward'],h:`
+<h3>Каркас письма</h3>
+<table><tr><th>Часть</th><th>Фраза</th></tr>
+<tr><td>Начало</td><td><b>Dear</b> Mr. Smith, / Hi John,</td></tr>
+<tr><td>Суть</td><td>I am writing <b>regarding</b> the invoice.</td></tr>
+<tr><td>Вложение</td><td><b>Please find attached</b> the contract.</td></tr>
+<tr><td>Просьба</td><td>Please <b>let me know</b> if it works.</td></tr>
+<tr><td>Финал</td><td><b>Looking forward</b> to your reply.</td></tr>
+<tr><td>Подпись</td><td><b>Best regards,</b> Nikolay</td></tr></table>
+<div class="tip"><b>Готовый шаблон.</b> Dear Ana, I am writing regarding our meeting. Please find attached the price list. Let me know if Tuesday works for you. Best regards, Nikolay. — этого хватает для 80% деловых писем.</div>`},
+
+{t:'Урок 22 · Встречи и small talk',d:'договориться и поболтать',deck:'l4',w:['appointment','postpone','confirm','agenda','available','suits me','deal','how\'s it going','long time no see','in touch'],h:`
+<h3>Назначить встречу</h3>
+<table><tr><th>Фраза</th><th>Перевод</th></tr>
+<tr><td>Are you <b>available</b> on Tuesday?</td><td>Ты свободен во вторник?</td></tr>
+<tr><td>Tuesday <b>suits me</b>.</td><td>Вторник мне подходит.</td></tr>
+<tr><td>Can we <b>postpone</b> it?</td><td>Можем перенести?</td></tr>
+<tr><td>I <b>confirm</b> the meeting.</td><td>Подтверждаю встречу.</td></tr>
+<tr><td><b>Deal!</b></td><td>Договорились!</td></tr></table>
+<h3>Small talk</h3>
+<p><b>How's it going?</b> — как дела? (ответ: Good, thanks! And you?) <b>Long time no see!</b> — давно не виделись. <b>Let's keep in touch</b> — будем на связи.</p>`},
+
+{t:'Урок 23 · Путешествия',d:'аэропорт, отель, аренда — к переезду',deck:'l4',w:['airport','flight','luggage','passport','customs','check-in','booking','rent','one-way ticket','currency'],h:`
+<h3>Аэропорт</h3>
+<table><tr><th>Фраза</th><th>Перевод</th></tr>
+<tr><td>My <b>flight</b> is at 9 am.</td><td>Мой рейс в 9 утра.</td></tr>
+<tr><td>Where is the <b>check-in</b>?</td><td>Где регистрация?</td></tr>
+<tr><td>I have one bag of <b>luggage</b>.</td><td>У меня одна сумка багажа.</td></tr>
+<tr><td>A <b>one-way ticket</b> to Belgrade.</td><td>Билет в один конец до Белграда.</td></tr></table>
+<h3>Жильё и деньги</h3>
+<p>I have a <b>booking</b>. I'd like to <b>rent</b> an apartment for a month. Where can I exchange <b>currency</b>?</p>
+<div class="tip"><b>Про Сербию.</b> One-way ticket to Belgrade — звучит как план, а не как фраза из учебника 😉</div>`},
+
+{t:'Урок 24 · Рассказ о себе — итог',d:'собираем всё в связную речь',deck:'l4',w:['introduce','in short','to sum up','overall','currently','previously','journey','fluent','keep going','congratulations'],h:`
+<h3>Структура рассказа о себе</h3>
+<table><tr><th>Блок</th><th>Фразы-опоры</th></tr>
+<tr><td>Кто я</td><td>Let me <b>introduce</b> myself. I'm Nikolay, I'm from Russia.</td></tr>
+<tr><td>Сейчас</td><td><b>Currently</b> I run two businesses and build LabDesk.</td></tr>
+<tr><td>Раньше</td><td><b>Previously</b> I worked in security systems.</td></tr>
+<tr><td>Планы</td><td>I'm going to relocate to Serbia.</td></tr>
+<tr><td>Итог</td><td><b>In short</b>, I love building products.</td></tr></table>
+<h3>Пример целиком</h3>
+<p>Let me introduce myself. I'm Nikolay, a founder from Nizhny Novgorod. Currently I build LabDesk — a SaaS platform for dental labs. It helps them manage and track orders. Previously I worked in web development and security systems. I'm learning English because I'm going to relocate to Serbia. In short, it's a long journey, but I keep going.</p>
+<div class="tip"><b>Congratulations!</b> Если ты дошёл сюда и можешь рассказать это вслух — курс пройден. Дальше: сериалы с субтитрами, переписка с реальными людьми и практика в чате. Keep going!</div>`},
 ];
 
+function lessonWordsDone(i){
+  const l=LESSONS[i];
+  if(!l||!l.w||!l.w.length) return {p:0,n:0,done:true};
+  let p=0;
+  l.w.forEach(en=>{ if(st(l.deck+'|'+en.toLowerCase()).box>0) p++; });
+  return {p,n:l.w.length,done:p===l.w.length};
+}
+function lessonUnlocked(i){
+  if(i<8) return true;
+  return lessonWordsDone(i-1).done;
+}
 function renderTheory(){
   const box=document.getElementById('lessonList'); box.innerHTML='';
   LESSONS.forEach((l,i)=>{
+    const un=lessonUnlocked(i);
+    const w=lessonWordsDone(i);
     const read=(S.read||[]).includes(i);
-    const b=document.createElement('button'); b.className='deck'+(read?' on':'');
-    b.innerHTML=`<span class="chk">✓</span><span class="nm"><b>${l.t}</b><i>${l.d}</i></span>`;
-    b.onclick=()=>openLesson(i);
+    const b=document.createElement('button');
+    b.className='deck'+(read&&un?' on':'')+(un?'':' lock');
+    const sub=un?l.d:'сначала пройди слова предыдущего урока';
+    const prog=w.n?`<span class="prog">${w.p}/${w.n}<div class="bar"><i style="width:${Math.round(w.p/w.n*100)}%"></i></div></span>`:'';
+    b.innerHTML=`<span class="chk">${un?'✓':'🔒'}</span><span class="nm"><b>${l.t}</b><i>${sub}</i></span>`+prog;
+    b.onclick=()=>{ if(un) openLesson(i); else toast('Пройди слова предыдущего урока в карточках'); };
     box.appendChild(b);
   });
 }
@@ -1482,7 +1857,9 @@ function openLesson(i){
   const l=LESSONS[i];
   document.getElementById('lesTitle').textContent=l.t;
   document.getElementById('lesBody').innerHTML=l.h;
-  S.read=S.read||[]; if(!S.read.includes(i)){ S.read.push(i); save(); }
+  S.read=S.read||[]; if(!S.read.includes(i)) S.read.push(i);
+  if(l.deck && !S.decks.includes(l.deck)){ S.decks.push(l.deck); render(); toast('Набор со словами урока включён'); }
+  save();
   go('s-lesson'); window.scrollTo(0,0);
 }
 
