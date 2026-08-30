@@ -124,11 +124,13 @@ input,textarea,select{font-family:inherit;font-size:16px}
   letter-spacing:.08em;text-transform:uppercase;min-height:14px
 }
 
-.stage{flex:1;display:flex;flex-direction:column;justify-content:center;padding:8px var(--pad)}
+.stage{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding:8px var(--pad)}
+#s-play.on{height:100dvh;max-height:100dvh;overflow:hidden}
+#s-play .opts,#s-play .typebox{flex:none}
 .card{
   background:var(--paper);color:var(--ink);border-radius:16px;padding:26px 20px;
   box-shadow:0 14px 34px rgba(0,0,0,.42),0 1px 0 rgba(255,255,255,.05) inset;
-  text-align:center;position:relative;min-height:170px;
+  text-align:center;position:relative;min-height:170px;margin:auto 0;
   display:flex;flex-direction:column;justify-content:center;gap:10px
 }
 .card::after{
@@ -330,7 +332,7 @@ input,textarea,select{font-family:inherit;font-size:16px}
     <div class="cap" id="dCap"></div>
     <div class="misslist" id="dMiss"></div>
   </div>
-  <div class="bottom">
+  <div class="bottom" id="dActions">
     <button class="btn" onclick="startSession()">Ещё подход</button>
     <div style="height:8px"></div>
     <button class="btn ghost" onclick="go('s-home')">На главную</button>
@@ -374,6 +376,8 @@ input,textarea,select{font-family:inherit;font-size:16px}
   <div class="les" id="lesBody"></div>
   <div class="bottom">
     <button class="btn" id="lesGo" onclick="startLessonSession(CUR_LESSON)">Учить слова урока</button>
+    <div style="height:8px"></div>
+    <button class="btn ghost" id="lesCheck" onclick="startCheck(CUR_LESSON)">Проверка — открыть следующий урок</button>
     <div style="height:8px"></div>
     <button class="btn ghost" onclick="go('s-theory')">К списку уроков</button>
   </div>
@@ -1079,7 +1083,7 @@ const knownCount=()=>Object.values(S.cards).filter(s=>s.box>=4).length;
 function go(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
   window.scrollTo(0,0);
-  if(id==='s-home'){ FOCUS=null; render(); }
+  if(id==='s-home'){ FOCUS=null; CHECK=null; render(); }
   if(id==='s-add') renderMy();
   if(id==='s-theory') renderTheory();
   if(id==='s-set') renderCloud();
@@ -1131,17 +1135,39 @@ function plural(n,a,b,c){n=Math.abs(n)%100;const m=n%10;if(n>10&&n<20)return c;i
    ============================================================ */
 let Q=[],qi=0,cur=null,answered=false,right=0,missed=[];
 
-let FOCUS=null;
+let FOCUS=null, CHECK=null;
+const PASS=75;
+function lessonIds(i){
+  const l=LESSONS[i];
+  return (l.w||[]).map(en=>l.deck+'|'+en.toLowerCase());
+}
 function startLessonSession(i){
   const l=LESSONS[i];
   if(!l.w||!l.w.length) return startSession();
-  FOCUS={ids:new Set(l.w.map(en=>l.deck+'|'+en.toLowerCase())),deck:l.deck};
+  CHECK=null;
+  FOCUS={ids:new Set(lessonIds(i)),decks:[l.deck],kind:'learn'};
+  startSession();
+}
+function startCheck(i){
+  if(!lessonWordsDone(i).done) return toast('Сначала пройди слова урока');
+  const own=lessonIds(i);
+  const prev=shuffle([i-1,i-2].filter(x=>x>=0).flatMap(x=>lessonIds(x)));
+  const ids=own.concat(prev.slice(0,Math.max(0,20-own.length)));
+  const decks=[...new Set([i,i-1,i-2].filter(x=>x>=0).map(x=>LESSONS[x].deck))];
+  const seen=new Set(ids.filter(id=>st(id).box>0));
+  CHECK={lesson:i,seen};
+  FOCUS={ids:new Set(ids),decks,kind:'check'};
   startSession();
 }
 function startSession(){
-  let pool=allCards(FOCUS?[FOCUS.deck]:S.decks);
+  let pool=allCards(FOCUS?FOCUS.decks:S.decks);
   if(FOCUS) pool=pool.filter(c=>FOCUS.ids.has(c.id));
   const size=FOCUS?Math.min(pool.length,20):S.size;
+  if(FOCUS&&FOCUS.kind==='check'){
+    Q=shuffle(pool); qi=0; right=0; missed=[];
+    ym_goal('session_start');
+    go('s-play'); nextCard(); return;
+  }
   const t=today();
   const due=pool.filter(c=>{const s=st(c.id);return s.box>0&&s.box<BOXES&&s.due<=t;})
                 .sort((a,b)=>st(a.id).box-st(b.id).box);
@@ -1324,6 +1350,7 @@ function reveal(ok){
     document.getElementById('cWhy').innerHTML=cur.why;
     document.getElementById('cWhy').style.display='';
     if(S.sound) speak(full);
+    document.getElementById('speakBtn').style.display='';
     finishReveal(ok); return;
   }
 
@@ -1343,6 +1370,7 @@ function reveal(ok){
     if(S.showTr) showTr(true);
   }
   if(cur._mode!=='recog'&&S.sound) speak(cur.en);
+  document.getElementById('speakBtn').style.display='';
 
   finishReveal(ok);
 }
@@ -1404,7 +1432,18 @@ function advance(){ clearTimeout(autoT); autoT=null; qi++; save(); nextCard(); }
 
 function finish(){
   document.getElementById('track').style.width='100%';
-  const pct=Q.length?Math.round(right/Q.length*100):0;
+  let pct=Q.length?Math.round(right/Q.length*100):0;
+  let checkRes=null;
+  if(CHECK){
+    const missedIds=new Set(missed.map(c=>c.id));
+    const graded=Q.filter(c=>CHECK.seen.has(c.id));
+    const wrong=graded.filter(c=>missedIds.has(c.id)).length;
+    pct=graded.length?Math.round((graded.length-wrong)/graded.length*100):100;
+    const ok=pct>=PASS;
+    S.passed=S.passed||[];
+    if(ok&&!S.passed.includes(CHECK.lesson)) S.passed.push(CHECK.lesson);
+    checkRes={ok,lesson:CHECK.lesson,graded:graded.length,wrong};
+  }
   document.getElementById('dScore').textContent=pct+'%';
   const t=today();
   const isNewDay = S.lastDay!==t;
@@ -1416,10 +1455,13 @@ function finish(){
   if(S.sessions===1) ym_goal('first_session_done');
   if(isNewDay && S.streak===2) ym_goal('returned_day2');
   if(isNewDay && S.streak===7) ym_goal('returned_day7');
-  document.getElementById('dCap').textContent =
-    pct>=90 ? 'Отлично. Эти слова вернутся нескоро.' :
-    pct>=60 ? 'Нормальный подход. Ошибки вернутся сегодня же.' :
-              'Много новых слов — это нормально. Они вернутся сразу.';
+  document.getElementById('dCap').textContent = checkRes
+    ? (checkRes.ok
+        ? (checkRes.lesson+1<LESSONS.length ? 'Проверка сдана. Следующий урок открыт.' : 'Проверка сдана. Курс пройден!')
+        : 'До следующего урока нужно '+PASS+'%. Ошибок в знакомых словах: '+checkRes.wrong+' из '+checkRes.graded+'. Уроки остаются открытыми — просто повтори и приходи снова.')
+    : pct>=90 ? 'Отлично. Эти слова вернутся нескоро.' :
+      pct>=60 ? 'Нормальный подход. Ошибки вернутся сегодня же.' :
+                'Много новых слов — это нормально. Они вернутся сразу.';
   const ml=document.getElementById('dMiss'); ml.innerHTML='';
   if(missed.length){
     const seen=new Set();
@@ -1430,8 +1472,21 @@ function finish(){
       ml.appendChild(d);
     });
   }
+  const acts=document.getElementById('dActions');
+  const gap='<div style="height:8px"></div>';
+  if(checkRes&&checkRes.ok&&checkRes.lesson+1<LESSONS.length){
+    acts.innerHTML='<button class="btn" onclick="openLesson('+(checkRes.lesson+1)+')">Следующий урок →</button>'+gap+
+                   '<button class="btn ghost" onclick="go(\'s-theory\')">К списку уроков</button>';
+  } else if(checkRes&&!checkRes.ok){
+    acts.innerHTML='<button class="btn" onclick="startLessonSession('+checkRes.lesson+')">Повторить слова</button>'+gap+
+                   '<button class="btn ghost" onclick="startCheck('+checkRes.lesson+')">Пройти проверку ещё раз</button>';
+  } else {
+    acts.innerHTML='<button class="btn" onclick="startSession()">Ещё подход</button>'+gap+
+                   '<button class="btn ghost" onclick="go(\'s-home\')">На главную</button>';
+  }
+  const wasCheck=CHECK; CHECK=null;
   go('s-done');
-  if(FOCUS && CUR_LESSON+1<LESSONS.length && lessonWordsDone(CUR_LESSON).done) toast('Слова урока пройдены — следующий урок открыт');
+  if(wasCheck&&wasCheck.ok!==false&&S.passed.includes(wasCheck.lesson)) ym_goal('lesson_passed');
 }
 
 /* ============================================================
@@ -1453,7 +1508,11 @@ function speak(text){
     speechSynthesis.speak(u);
   }catch(e){}
 }
-function speakCurrent(){ if(cur) speak(cur.en); }
+function speakCurrent(){
+  if(!cur) return;
+  if(cur.type==='rule') speak(cur.q.replace('___',cur.a));
+  else speak(cur.en);
+}
 
 /* ============================================================
    СВОИ СЛОВА
@@ -1849,32 +1908,46 @@ function lessonWordsDone(i){
 }
 function lessonUnlocked(i){
   if(i<8) return true;
-  return lessonWordsDone(i-1).done;
+  S.passed=S.passed||[];
+  if(S.passed.includes(i-1)) return true;
+  return lessonWordsDone(i-1).done && (S.read||[]).includes(i-1) && i-1<8;
 }
 function renderTheory(){
   const box=document.getElementById('lessonList'); box.innerHTML='';
+  S.passed=S.passed||[];
   LESSONS.forEach((l,i)=>{
     const un=lessonUnlocked(i);
     const w=lessonWordsDone(i);
+    const pass=S.passed.includes(i);
     const read=(S.read||[]).includes(i);
     const b=document.createElement('button');
-    b.className='deck'+(read&&un?' on':'')+(un?'':' lock');
-    const sub=un?l.d:'сначала пройди слова предыдущего урока';
+    b.className='deck'+(pass||(read&&un&&i<8)?' on':'')+(un?'':' lock');
+    const sub=!un?'сдай проверку предыдущего урока':(pass?'сдан ✓':l.d);
     const prog=w.n?`<span class="prog">${w.p}/${w.n}<div class="bar"><i style="width:${Math.round(w.p/w.n*100)}%"></i></div></span>`:'';
-    b.innerHTML=`<span class="chk">${un?'✓':'🔒'}</span><span class="nm"><b>${l.t}</b><i>${sub}</i></span>`+prog;
-    b.onclick=()=>{ if(un) openLesson(i); else toast('Пройди слова предыдущего урока в карточках'); };
+    b.innerHTML=`<span class="chk">${un?(pass?'✓':'·'):'🔒'}</span><span class="nm"><b>${l.t}</b><i>${sub}</i></span>`+prog;
+    b.onclick=()=>{ if(un) openLesson(i); else toast('Сдай проверку предыдущего урока'); };
     box.appendChild(b);
   });
 }
 let CUR_LESSON=0;
 function openLesson(i){
   CUR_LESSON=i;
+  FOCUS=null; CHECK=null;
   const l=LESSONS[i];
   document.getElementById('lesTitle').textContent=l.t;
   document.getElementById('lesBody').innerHTML=l.h;
   S.read=S.read||[]; if(!S.read.includes(i)) S.read.push(i);
   if(l.deck && !S.decks.includes(l.deck)){ S.decks.push(l.deck); render(); toast('Набор со словами урока включён'); }
   save();
+  const cb=document.getElementById('lesCheck');
+  S.passed=S.passed||[];
+  const w=lessonWordsDone(i);
+  if(!l.w||!l.w.length) cb.style.display='none';
+  else{
+    cb.style.display='';
+    cb.textContent = S.passed.includes(i) ? 'Проверка сдана ✓ — пройти ещё раз'
+      : (w.done ? 'Проверка — открыть следующий урок' : 'Проверка — сначала выучи слова ('+w.p+'/'+w.n+')');
+  }
   go('s-lesson'); window.scrollTo(0,0);
 }
 
