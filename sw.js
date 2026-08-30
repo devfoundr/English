@@ -1,7 +1,7 @@
 /* Тренажёр «Слова» — офлайн-кэш.
    Меняй CACHE при каждом обновлении index.html, иначе телефон будет
    показывать старую версию. */
-const CACHE = 'slova-v14';
+const CACHE = 'slova-v15';
 
 self.addEventListener('install', e => {
   e.waitUntil(

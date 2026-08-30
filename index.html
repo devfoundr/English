@@ -124,13 +124,16 @@ input,textarea,select{font-family:inherit;font-size:16px}
   letter-spacing:.08em;text-transform:uppercase;min-height:14px
 }
 
-.stage{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;padding:8px var(--pad)}
+.stage{flex:1;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;justify-content:flex-end;padding:8px var(--pad) 4px}
+.nextwrap{flex:none;padding:8px var(--pad) calc(14px + env(safe-area-inset-bottom))}
+.nextwrap:empty{padding:0}
 #s-play.on{height:100dvh;max-height:100dvh;overflow:hidden}
 #s-play .opts,#s-play .typebox{flex:none}
+#s-play .opts{padding-bottom:6px}
 .card{
   background:var(--paper);color:var(--ink);border-radius:16px;padding:26px 20px;
   box-shadow:0 14px 34px rgba(0,0,0,.42),0 1px 0 rgba(255,255,255,.05) inset;
-  text-align:center;position:relative;min-height:170px;margin:auto 0;
+  text-align:center;position:relative;min-height:170px;flex:none;
   display:flex;flex-direction:column;justify-content:center;gap:10px
 }
 .card::after{
@@ -314,6 +317,7 @@ input,textarea,select{font-family:inherit;font-size:16px}
   </div>
 
   <div class="opts" id="opts"></div>
+  <div class="nextwrap" id="nextWrap"></div>
 
   <div class="typebox" id="typebox" style="display:none">
     <input id="typeIn" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" placeholder="напиши по-английски">
@@ -1228,6 +1232,7 @@ function nextCard(){
   const w=document.getElementById('cWord');
   const hint=document.getElementById('cHint');
   const opts=document.getElementById('opts'), tb=document.getElementById('typebox');
+  document.getElementById('nextWrap').innerHTML='';
 
   if(mode==='rule'){
     w.textContent=cur.q; w.className='word gap';
@@ -1413,7 +1418,7 @@ function mkNext(){
   const nb=document.createElement('button');
   nb.className='btn ghost nextbtn'; nb.textContent='Дальше';
   nb.onclick=advance;
-  document.getElementById('opts').appendChild(nb);
+  document.getElementById('nextWrap').appendChild(nb);
   return nb;
 }
 /* Запускает обратный отсчёт до следующей карточки.
