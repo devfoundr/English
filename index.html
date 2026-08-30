@@ -373,7 +373,9 @@ input,textarea,select{font-family:inherit;font-size:16px}
   </div>
   <div class="les" id="lesBody"></div>
   <div class="bottom">
-    <button class="btn" onclick="go('s-theory')">К списку уроков</button>
+    <button class="btn" id="lesGo" onclick="startLessonSession(CUR_LESSON)">Учить слова урока</button>
+    <div style="height:8px"></div>
+    <button class="btn ghost" onclick="go('s-theory')">К списку уроков</button>
   </div>
 </section>
 
@@ -1077,7 +1079,7 @@ const knownCount=()=>Object.values(S.cards).filter(s=>s.box>=4).length;
 function go(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
   window.scrollTo(0,0);
-  if(id==='s-home') render();
+  if(id==='s-home'){ FOCUS=null; render(); }
   if(id==='s-add') renderMy();
   if(id==='s-theory') renderTheory();
   if(id==='s-set') renderCloud();
@@ -1129,20 +1131,30 @@ function plural(n,a,b,c){n=Math.abs(n)%100;const m=n%10;if(n>10&&n<20)return c;i
    ============================================================ */
 let Q=[],qi=0,cur=null,answered=false,right=0,missed=[];
 
+let FOCUS=null;
+function startLessonSession(i){
+  const l=LESSONS[i];
+  if(!l.w||!l.w.length) return startSession();
+  FOCUS={ids:new Set(l.w.map(en=>l.deck+'|'+en.toLowerCase())),deck:l.deck};
+  startSession();
+}
 function startSession(){
-  const pool=allCards(S.decks), t=today();
+  let pool=allCards(FOCUS?[FOCUS.deck]:S.decks);
+  if(FOCUS) pool=pool.filter(c=>FOCUS.ids.has(c.id));
+  const size=FOCUS?Math.min(pool.length,20):S.size;
+  const t=today();
   const due=pool.filter(c=>{const s=st(c.id);return s.box>0&&s.box<BOXES&&s.due<=t;})
                 .sort((a,b)=>st(a.id).box-st(b.id).box);
   const fresh=shuffle(pool.filter(c=>st(c.id).box===0));
-  Q=due.slice(0,S.size);
-  const room=S.size-Q.length;
+  Q=due.slice(0,size);
+  const room=size-Q.length;
   if(room>0) Q=Q.concat(fresh.slice(0,room));
-  if(Q.length<S.size){
+  if(Q.length<size){
     const rest=shuffle(pool.filter(c=>!Q.find(x=>x.id===c.id)&&st(c.id).box<BOXES));
-    Q=Q.concat(rest.slice(0,S.size-Q.length));
+    Q=Q.concat(rest.slice(0,size-Q.length));
   }
   if(!Q.length){
-    const done=shuffle(pool); Q=done.slice(0,S.size);
+    const done=shuffle(pool); Q=done.slice(0,size);
   }
   Q=shuffle(Q); qi=0; right=0; missed=[];
   ym_goal('session_start');
@@ -1419,6 +1431,7 @@ function finish(){
     });
   }
   go('s-done');
+  if(FOCUS && CUR_LESSON+1<LESSONS.length && lessonWordsDone(CUR_LESSON).done) toast('Слова урока пройдены — следующий урок открыт');
 }
 
 /* ============================================================
@@ -1853,7 +1866,9 @@ function renderTheory(){
     box.appendChild(b);
   });
 }
+let CUR_LESSON=0;
 function openLesson(i){
+  CUR_LESSON=i;
   const l=LESSONS[i];
   document.getElementById('lesTitle').textContent=l.t;
   document.getElementById('lesBody').innerHTML=l.h;
