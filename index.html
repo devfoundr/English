@@ -230,6 +230,18 @@ input,textarea,select{font-family:inherit;font-size:16px}
 .mw b{font-family:var(--serif);font-weight:400}
 .mw i{font-style:normal;color:var(--dim-2)}
 .mw button{margin-left:auto;color:var(--dim-2);font-size:18px;padding:0 4px}
+.les{padding:0 var(--pad) 8px;font-size:14.5px;color:#C9CCD6;line-height:1.55}
+.les h3{font-family:var(--serif);font-weight:400;font-size:17px;margin:20px 0 8px;color:#E7E9EF}
+.les p{margin:7px 0}
+.les table{width:100%;border-collapse:collapse;margin:10px 0;font-size:14px}
+.les th{font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--dim-2);font-weight:500;text-align:left;padding:6px 8px;border-bottom:1px solid var(--ground-3)}
+.les td{padding:7px 8px;border-bottom:1px solid var(--ground-2)}
+.les td:first-child{font-family:var(--serif)}
+.les b{color:#E7E9EF;font-weight:600}
+.les .ok{color:var(--accent)}
+.les .bad{color:var(--warn);text-decoration:line-through;text-decoration-thickness:1px}
+.les .tip{background:var(--ground-2);border-radius:10px;padding:11px 13px;font-size:13.5px;margin:12px 0}
+.les .tip b:first-child{color:var(--gold)}
 .toast{
   position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translateX(-50%);
   background:var(--ground-3);color:#E7E9EF;padding:11px 18px;border-radius:11px;font-size:14px;
@@ -251,6 +263,7 @@ input,textarea,select{font-family:inherit;font-size:16px}
       <div class="sub" id="streakLine">английский · день 1</div>
     </div>
     <div class="spacer"></div>
+    <button class="iconbtn" onclick="go('s-theory')" title="Теория">📖</button>
     <button class="iconbtn" onclick="go('s-add')" title="Свои слова">＋</button>
     <button class="iconbtn" onclick="go('s-set')" title="Настройки">⚙</button>
   </div>
@@ -340,6 +353,28 @@ input,textarea,select{font-family:inherit;font-size:16px}
   <div class="mywords" id="myList"></div>
 </section>
 
+<!-- ================= ТЕОРИЯ ================= -->
+<section class="screen" id="s-theory">
+  <div class="top">
+    <button class="iconbtn" onclick="go('s-home')">‹</button>
+    <div><h1>Теория</h1><div class="sub">конспекты уроков из чата</div></div>
+  </div>
+  <div class="decks" id="lessonList" style="padding-bottom:24px"></div>
+  <div class="note" style="padding:0 var(--pad) 24px">Прочитал урок — иди в карточки: слова и правила из него уже в наборах «Уроки 1–3», «Уроки 4–8» и «Грамматика».</div>
+</section>
+
+<!-- ================= УРОК ================= -->
+<section class="screen" id="s-lesson">
+  <div class="top">
+    <button class="iconbtn" onclick="go('s-theory')">‹</button>
+    <div><h1 id="lesTitle">Урок</h1><div class="sub">конспект</div></div>
+  </div>
+  <div class="les" id="lesBody"></div>
+  <div class="bottom">
+    <button class="btn" onclick="go('s-theory')">К списку уроков</button>
+  </div>
+</section>
+
 <!-- ================= НАСТРОЙКИ ================= -->
 <section class="screen" id="s-set">
   <div class="top">
@@ -374,6 +409,16 @@ input,textarea,select{font-family:inherit;font-size:16px}
       <textarea id="impBox" rows="3" placeholder="вставь сюда содержимое файла"></textarea>
     </div>
     <button class="btn ghost" onclick="importData()">Восстановить</button>
+    <div class="field" style="padding-top:10px">
+      <label>Облако — GitHub Gist</label>
+      <input id="ghTok" type="password" autocomplete="off" placeholder="токен ghp_… или github_pat_…">
+      <div class="note" style="margin-top:7px">Прогресс сохраняется в приватный gist на твоём GitHub и подтягивается на любом устройстве. Токен: github.com/settings/tokens → Generate new token (classic) → галочка только <b>gist</b>. Токен хранится только в этом браузере. После каждого подхода копия улетает в облако сама.</div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn ghost" style="flex:1" onclick="cloudSave()">В облако</button>
+      <button class="btn ghost" style="flex:1" onclick="cloudLoad()">Из облака</button>
+    </div>
+    <div class="note" id="cloudTs"></div>
     <div class="note" style="padding-top:14px">
       Как работает расписание: новое слово идёт в коробку 1. Ответил верно — слово переезжает в следующую и вернётся позже: через 1 день, 3, 7, 16, 35. Ошибся — возвращается в первую. С третьей коробки перевод нужно вводить руками, а не выбирать.
     </div>
@@ -700,6 +745,55 @@ const DECKS = [
     ['yesterday','вчера','I finished it yesterday.','Я закончил это вчера.','йе́стэдэй'],
     ['every day','каждый день','I study English every day.','Я учу английский каждый день.','э́ври дэй'],
   ]},
+  {id:'l2', name:'Уроки 4–8', desc:'словарь из чата, с произношением', words:[
+    ['what','что, какой','What do you do?','Чем ты занимаешься?','вот'],
+    ['where','где, куда','Where do you work?','Где ты работаешь?','вэа'],
+    ['when','когда','When do you wake up?','Когда ты просыпаешься?','вэн'],
+    ['who','кто','Who is this?','Кто это?','ху'],
+    ['why','почему','Why do you learn English?','Почему ты учишь английский?','вай'],
+    ['how','как','How do you go to work?','Как ты добираешься до работы?','хау'],
+    ['job','работа, должность','I like my job.','Мне нравится моя работа.','джоб'],
+    ['interesting','интересный','An interesting project.','Интересный проект.','и́нтрэстинг'],
+    ['went','пошёл (прош. от go)','I went to the office.','Я пошёл в офис.','вэнт'],
+    ['built','создал (прош. от build)','I built this platform.','Я создал эту платформу.','билт'],
+    ['made','сделал (прош. от make)','I made a contract.','Я составил договор.','мэйд'],
+    ['had','имел (прош. от have)','I had a meeting.','У меня была встреча.','хэд'],
+    ['got','получил (прош. от get)','I got an email.','Я получил письмо.','гот'],
+    ['came','пришёл (прош. от come)','He came at nine.','Он пришёл в девять.','кэйм'],
+    ['met','встретил (прош. от meet)','I met a new client.','Я встретил нового клиента.','мэт'],
+    ['wrote','написал (прош. от write)','I wrote the code.','Я написал код.','роут'],
+    ['found','нашёл (прош. от find)','I found a bug.','Я нашёл баг.','фаунд'],
+    ['thought','думал (прош. от think)','I thought about it.','Я думал об этом.','сот'],
+    ['took','взял (прош. от take)','I took a taxi.','Я взял такси.','тук'],
+    ['spent','провёл, потратил (прош. от spend)','I spent two hours on it.','Я потратил на это два часа.','спэнт'],
+    ['ago','назад','I created LabDesk two years ago.','Я создал LabDesk два года назад.','эго́у'],
+    ['last week','на прошлой неделе','I was there last week.','Я был там на прошлой неделе.','ласт вик'],
+    ['will','буду (будущее)','I will call you tomorrow.','Я позвоню тебе завтра.','вил'],
+    ['won\'t','не буду','I won\'t work tomorrow.','Завтра я не буду работать.','во́унт'],
+    ['soon','скоро','He will move soon.','Он скоро переедет.','сун'],
+    ['next week','на следующей неделе','I am going to Serbia next week.','На следующей неделе я еду в Сербию.','нэкст вик'],
+    ['reach','достичь','We want to reach the goal.','Мы хотим достичь цели.','рич'],
+    ['goal','цель','My goal is simple.','Моя цель проста.','гоул'],
+    ['per month','в месяц','It costs 3,500 rubles per month.','Это стоит 3500 рублей в месяц.','пэ монс'],
+    ['month','месяц','I created LabDesk one month ago.','Я создал LabDesk месяц назад.','монс'],
+    ['simple','простой','LabDesk is a simple platform.','LabDesk — простая платформа.','си́мпл'],
+    ['useful','полезный','A useful feature.','Полезная функция.','ю́зфул'],
+    ['warm','тёплый','Serbia is warm.','В Сербии тепло.','уом'],
+    ['modern','современный','A modern city.','Современный город.','мо́дэн'],
+    ['popular','популярный','A popular product.','Популярный продукт.','по́пьюлэ'],
+    ['comfortable','удобный','A comfortable office.','Удобный офис.','ка́мфтэбл'],
+    ['difficult','сложный','English is not difficult.','Английский не сложный.','ди́фикэлт'],
+    ['better','лучше','This is better than yesterday.','Это лучше, чем вчера.','бэ́тэ'],
+    ['the best','лучший','The best product on the market.','Лучший продукт на рынке.','зэ бэст'],
+    ['than','чем (в сравнении)','Serbia is cheaper than Russia.','Сербия дешевле, чем Россия.','зэн'],
+    ['cost','стоить','How much does it cost?','Сколько это стоит?','кост'],
+    ['earn','зарабатывать','I want to earn more.','Я хочу зарабатывать больше.','ёрн'],
+    ['price','цена','A good price.','Хорошая цена.','прайс'],
+    ['discount','скидка','A 20 percent discount.','Скидка 20 процентов.','ди́скаунт'],
+    ['free trial','бесплатный период','A 30-day free trial.','30 дней бесплатно.','фри тра́йэл'],
+    ['profit','прибыль','Profit is growing.','Прибыль растёт.','про́фит'],
+    ['of course','конечно','Yes, of course!','Да, конечно!','ов кос'],
+  ]},
   {id:'g', name:'Грамматика', desc:'правила и твои частые ошибки', rules:true, words:[]},
   {id:'my', name:'Мои слова', desc:'добавляешь сам', words:[]}
 ];
@@ -725,6 +819,19 @@ const RULES=[
   ['Can I pay ___ card?','by','with|on|for','Способ оплаты — <b>by</b>: by card, by bank transfer. А вот наличными наоборот: <b>in cash</b>.'],
   ['I am looking ___ this street.','for','—|to|at','<b>Look for</b> — искать. Без <b>for</b> получится «смотреть на», это другой смысл.'],
   ['This is ___ than yesterday.','better','more better|gooder|more good','У <b>good</b> сравнительная степень нестандартная — <b>better</b>. Никакого <b>more</b> перед ней не нужно.'],
+  ['My platform ___ LabDesk.','is called','is name|name is|called','Порядок слов жёсткий: подлежащее → глагол. «Называется» — <b>is called</b>: My platform is called LabDesk.'],
+  ['I ___ from Nizhny Novgorod.','am','—|is|be','Глагол обязателен всегда. Без <b>am</b> предложение неполное: I\'m from Russia.'],
+  ['Serbia is cheaper ___ Russia.','than','or|that|then','В сравнении всегда <b>than</b>: cheaper than, better than, bigger than. <b>Or</b> — это «или».'],
+  ['I created LabDesk one ___ ago.','month','mouth|mounth|months','<b>Month</b> — месяц, <b>mouth</b> — рот. Пишутся похоже, но на завтрак лучше eggs, а не eagle.'],
+  ['I ___ work tomorrow.','won\'t','\'ll not|not will|willn\'t','Отрицание будущего — <b>won\'t</b> (= will not), всегда слитно: I won\'t work on Sunday.'],
+  ['I\'m ___ to launch LabDesk next month.','going','go|goes|went','План — <b>be going to</b>: I\'m going to launch. Без <b>-ing</b> конструкция ломается.'],
+  ['My friends and ___ go to the gym.','I','me|myself|I\'m','«Я» в перечислении всегда идёт последним: <b>my friends and I</b>, не «I and my friends».'],
+  ['Yesterday I made ___ contract.','a','—|the|an','Перед единственным исчисляемым существительным нужен артикль: made <b>a</b> contract, found <b>a</b> bug.'],
+  ['Moscow is ___ bigger than Nizhny Novgorod.','—','a|the|an','После <b>is</b> перед сравнительной степенью артикль не нужен: is bigger than, is cheaper than.'],
+  ['I plan to ___ next year.','relocate','relocation|relocating|relocated','После <b>plan to</b> идёт глагол в начальной форме: plan to <b>relocate</b>, plan to travel. Relocation — существительное «переезд».'],
+  ['He did not come to the ___.','meeting','meet|met|meets','<b>Meet</b> — глагол «встречать», <b>meeting</b> — существительное «встреча»: come to the meeting.'],
+  ['— Can you help me? — Yes, ___!','of course','offcourse|ofcourse|off cause','<b>Of course</b> — «конечно». Два слова, пишется именно так.'],
+  ['LabDesk costs 3,500 rubles ___ month.','per','in|on|for','Регулярная цена или доход — <b>per</b>: per month, per year.'],
 ];
 
 
@@ -796,6 +903,8 @@ function go(id){
   window.scrollTo(0,0);
   if(id==='s-home') render();
   if(id==='s-add') renderMy();
+  if(id==='s-theory') renderTheory();
+  if(id==='s-set') renderCloud();
   if(id==='s-set') renderSet();
 }
 function toast(t){
@@ -1114,6 +1223,7 @@ function finish(){
   if(isNewDay){ S.streak=(S.streak||0)+1; S.lastDay=t; }
   S.sessions=(S.sessions||0)+1;
   save();
+  cloudSave(true);
   ym_goal('session_done');
   if(S.sessions===1) ym_goal('first_session_done');
   if(isNewDay && S.streak===2) ym_goal('returned_day2');
@@ -1244,6 +1354,197 @@ function resetAll(){
   if(!confirm('Удалить весь прогресс и свои слова?')) return;
   S={cards:{},custom:[],decks:['v','n','a'],size:12,sound:1,pause:3000,showTr:0,streak:0,lastDay:'',ver:1};
   syncCustom(); save(); render(); go('s-home'); toast('Сброшено');
+}
+
+/* ============================================================
+   ТЕОРИЯ — КОНСПЕКТЫ УРОКОВ
+   ============================================================ */
+const LESSONS=[
+{t:'Урок 1 · Глагол to be',d:'am, is, are — представиться',h:`
+<h3>Формы to be</h3>
+<table><tr><th>Кто</th><th>Форма</th><th>Сокращение</th></tr>
+<tr><td>I</td><td><b>am</b></td><td>I'm</td></tr>
+<tr><td>You / We / They</td><td><b>are</b></td><td>You're, We're, They're</td></tr>
+<tr><td>He / She / It</td><td><b>is</b></td><td>He's, She's, It's</td></tr></table>
+<p>I'm Nikolai. I'm from Russia. She's my friend. He's a dentist.</p>
+<div class="tip"><b>Твоя ошибка.</b> <span class="bad">I founder is platform</span> → <span class="ok">I'm a founder of a platform</span>. Перед профессией всегда <b>a</b>: a founder, a doctor.</div>
+<h3>Артикль a</h3>
+<p>Перед единственным исчисляемым существительным: <b>a</b> platform, <b>a</b> contract, <b>a</b> dentist. Перед именами и городами артикля нет: LabDesk, Nizhny Novgorod.</p>`},
+
+{t:'Урок 2 · Present Simple',d:'что делаешь регулярно',h:`
+<h3>Формула</h3>
+<table><tr><th>Кто</th><th>Глагол</th><th>Пример</th></tr>
+<tr><td>I / You / We / They</td><td>без изменений</td><td>I <b>work</b></td></tr>
+<tr><td>He / She / It</td><td>+ <b>s</b></td><td>He <b>works</b>, my company <b>helps</b></td></tr></table>
+<h3>Отрицание и вопрос</h3>
+<table><tr><th>Тип</th><th>I / you / we / they</th><th>he / she / it</th></tr>
+<tr><td>Отрицание</td><td><b>don't</b> work</td><td><b>doesn't</b> work</td></tr>
+<tr><td>Вопрос</td><td><b>Do</b> you work?</td><td><b>Does</b> he work?</td></tr></table>
+<p>После doesn't глагол без -s: <span class="bad">he doesn't works</span> → <span class="ok">he doesn't work</span>.</p>
+<div class="tip"><b>Твоя ошибка.</b> <span class="bad">I'm go</span>, <span class="bad">I'm develop</span> → <span class="ok">I go, I develop</span>. I'm — это состояние (I'm tired, I'm a founder). Для действия — просто глагол.</div>`},
+
+{t:'Урок 3 · Время и расписание',d:'утро, дни недели, часы',h:`
+<h3>Части дня</h3>
+<table><tr><th>Фраза</th><th>Перевод</th></tr>
+<tr><td><b>in the</b> morning / afternoon / evening</td><td>утром / днём / вечером</td></tr>
+<tr><td><b>at</b> night</td><td>ночью — исключение</td></tr></table>
+<h3>Предлоги времени</h3>
+<table><tr><th>Что</th><th>Предлог</th><th>Пример</th></tr>
+<tr><td>Дни недели</td><td><b>on</b></td><td>on Monday, on Friday</td></tr>
+<tr><td>Точное время</td><td><b>at</b></td><td>at seven, at 6 pm, at noon</td></tr>
+<tr><td>Части дня</td><td><b>in the</b></td><td>in the morning</td></tr></table>
+<p>Three days <b>a week</b> — три раза в неделю. <b>At work</b> — на работе.</p>
+<div class="tip"><b>Твоя ошибка.</b> <span class="bad">at evening</span> → <span class="ok">in the evening</span>; <span class="bad">go the office</span> → <span class="ok">go to the office</span>; <span class="bad">I and my friends</span> → <span class="ok">my friends and I</span> — «я» всегда последний.</div>`},
+
+{t:'Урок 4 · Вопросы',d:'What do you do? — разговор',h:`
+<h3>Вопросительные слова</h3>
+<table><tr><th>Слово</th><th>Перевод</th><th>Пример</th></tr>
+<tr><td>What</td><td>что, какой</td><td>What do you do?</td></tr>
+<tr><td>Where</td><td>где, куда</td><td>Where do you work?</td></tr>
+<tr><td>When</td><td>когда</td><td>When do you wake up?</td></tr>
+<tr><td>Who</td><td>кто</td><td>Who is this?</td></tr>
+<tr><td>Why</td><td>почему</td><td>Why do you learn English?</td></tr>
+<tr><td>How</td><td>как</td><td>How do you go to work?</td></tr></table>
+<p>Формула: <b>Wh- + do/does + кто + глагол?</b></p>
+<div class="tip"><b>Важно.</b> «What do you do?» — не «что ты делаешь сейчас», а «кем работаешь». Ответ: I'm a founder. I build a SaaS platform for dentists.</div>
+<p>Называние: My platform <b>is called</b> LabDesk. Порядок слов жёсткий — подлежащее, потом глагол.</p>`},
+
+{t:'Урок 5 · Past Simple',d:'что уже сделал',h:`
+<h3>Правильные глаголы: + ed</h3>
+<p>work → work<b>ed</b>, start → start<b>ed</b>, finish → finish<b>ed</b>, help → help<b>ed</b></p>
+<h3>Неправильные — запомнить</h3>
+<table><tr><th>Сейчас</th><th>Прошлое</th><th>Перевод</th></tr>
+<tr><td>go</td><td><b>went</b></td><td>пошёл</td></tr>
+<tr><td>build</td><td><b>built</b></td><td>создал</td></tr>
+<tr><td>make</td><td><b>made</b></td><td>сделал</td></tr>
+<tr><td>have</td><td><b>had</b></td><td>имел</td></tr>
+<tr><td>get</td><td><b>got</b></td><td>получил</td></tr>
+<tr><td>come</td><td><b>came</b></td><td>пришёл</td></tr>
+<tr><td>meet</td><td><b>met</b></td><td>встретил</td></tr>
+<tr><td>write</td><td><b>wrote</b></td><td>написал</td></tr>
+<tr><td>find</td><td><b>found</b></td><td>нашёл</td></tr>
+<tr><td>think</td><td><b>thought</b></td><td>думал</td></tr>
+<tr><td>take</td><td><b>took</b></td><td>взял</td></tr>
+<tr><td>spend</td><td><b>spent</b></td><td>провёл</td></tr></table>
+<h3>Отрицание и вопрос</h3>
+<p><b>didn't</b> + глагол в начальной форме: <span class="bad">I didn't went</span> → <span class="ok">I didn't go</span>. Вопрос: <b>Did</b> you work yesterday?</p>
+<p>Маркеры: yesterday, last week, two years <b>ago</b>, in 2024.</p>
+<div class="tip"><b>Твоя ошибка.</b> <span class="bad">mouth</span> — это рот, месяц — <span class="ok">month</span>. И <span class="bad">come meet</span> → <span class="ok">come to the meeting</span>: meet — глагол, meeting — встреча.</div>`},
+
+{t:'Урок 6 · Будущее время',d:'will и going to',h:`
+<h3>Два способа</h3>
+<table><tr><th>Способ</th><th>Когда</th><th>Пример</th></tr>
+<tr><td><b>will</b> + глагол</td><td>решил сейчас, обещание</td><td>I'll call you tomorrow</td></tr>
+<tr><td><b>going to</b> + глагол</td><td>уже спланировал</td><td>I'm going to relocate</td></tr></table>
+<p>Отрицание will — всегда слитно: <b>won't</b>. I won't work on Sunday.</p>
+<p>После <b>plan to</b> — глагол: plan to <b>relocate</b> (не relocation).</p>
+<p>Маркеры: tomorrow, next week, next month, soon, in the future.</p>
+<div class="tip"><b>Твоя ошибка.</b> <span class="bad">I'm go to launch</span> → <span class="ok">I'm going to launch</span>. И доход всегда <b>per month</b>: LabDesk will generate $15,000 per month.</div>`},
+
+{t:'Урок 7 · Прилагательные',d:'описания и сравнения',h:`
+<h3>Прилагательные не меняются</h3>
+<p><b>big</b> house, <b>big</b> company, <b>big</b> window — одна форма для всего. Место — перед существительным или после to be: LabDesk is <b>simple</b>. It's a <b>simple</b> platform.</p>
+<h3>Сравнение</h3>
+<table><tr><th>Слово</th><th>Сравнительная</th><th>Превосходная</th></tr>
+<tr><td>cheap (короткое)</td><td>cheap<b>er</b></td><td>the cheap<b>est</b></td></tr>
+<tr><td>interesting (длинное)</td><td><b>more</b> interesting</td><td>the <b>most</b> interesting</td></tr>
+<tr><td>good — исключение</td><td><b>better</b></td><td>the <b>best</b></td></tr>
+<tr><td>bad — исключение</td><td><b>worse</b></td><td>the <b>worst</b></td></tr></table>
+<p>«Чем» в сравнении — всегда <b>than</b>: Serbia is cheaper <b>than</b> Russia.</p>
+<div class="tip"><b>Твоя ошибка.</b> <span class="bad">cheaper or Russia</span> → <span class="ok">cheaper than Russia</span>. И без артикля: <span class="bad">is a bigger than</span> → <span class="ok">is bigger than</span>.</div>`},
+
+{t:'Урок 8 · Числа, деньги, даты',d:'цифры в бизнесе',h:`
+<h3>Числа</h3>
+<p>1–10: one, two, three, four, five, six, seven, eight, nine, ten. Дальше: eleven (11), twelve (12), thirteen (13)… twenty (20), thirty (30), forty (40), fifty (50), one hundred (100), one thousand (1 000), one million.</p>
+<p>Составные: 35 = thirty-five, 150 = one hundred and fifty.</p>
+<h3>Деньги</h3>
+<table><tr><th>Фраза</th><th>Перевод</th></tr>
+<tr><td>It costs 3,500 rubles <b>per month</b></td><td>стоит 3500 ₽ в месяц</td></tr>
+<tr><td>a 30-day <b>free trial</b></td><td>30 дней бесплатно</td></tr>
+<tr><td>pay <b>by</b> card / <b>in</b> cash</td><td>картой / наличными</td></tr>
+<tr><td>revenue, profit, discount, invoice</td><td>выручка, прибыль, скидка, счёт</td></tr></table>
+<h3>Даты</h3>
+<p>Месяцы: January, February, March, April, May, June, July, August, September, October, November, December.</p>
+<p><b>In</b> 2024 — в году. <b>On</b> Monday, March 3rd — в конкретный день. <b>Of course</b> — конечно, два слова.</p>`},
+];
+
+function renderTheory(){
+  const box=document.getElementById('lessonList'); box.innerHTML='';
+  LESSONS.forEach((l,i)=>{
+    const read=(S.read||[]).includes(i);
+    const b=document.createElement('button'); b.className='deck'+(read?' on':'');
+    b.innerHTML=`<span class="chk">✓</span><span class="nm"><b>${l.t}</b><i>${l.d}</i></span>`;
+    b.onclick=()=>openLesson(i);
+    box.appendChild(b);
+  });
+}
+function openLesson(i){
+  const l=LESSONS[i];
+  document.getElementById('lesTitle').textContent=l.t;
+  document.getElementById('lesBody').innerHTML=l.h;
+  S.read=S.read||[]; if(!S.read.includes(i)){ S.read.push(i); save(); }
+  go('s-lesson'); window.scrollTo(0,0);
+}
+
+/* ============================================================
+   ОБЛАКО — GITHUB GIST
+   Прогресс лежит в приватном gist. Токен нужен только со scope gist,
+   хранится в localStorage этого браузера и никуда больше не уходит.
+   ============================================================ */
+const GIST_FILE='slova-progress.json';
+function ghToken(){
+  const el=document.getElementById('ghTok');
+  const v=(el&&el.value.trim())||localStorage.getItem('slova-gh-token')||'';
+  if(v) localStorage.setItem('slova-gh-token',v);
+  return v;
+}
+function ghHeaders(tok){
+  return {'Authorization':'Bearer '+tok,'Accept':'application/vnd.github+json','Content-Type':'application/json'};
+}
+async function cloudSave(silent){
+  const tok=ghToken();
+  if(!tok){ if(!silent) toast('Сначала вставь GitHub токен'); return; }
+  const body=JSON.stringify({description:'Слова — прогресс тренажёра английского',
+    public:false, files:{[GIST_FILE]:{content:JSON.stringify(S)}}});
+  try{
+    const gid=localStorage.getItem('slova-gist-id');
+    let r=null;
+    if(gid) r=await fetch('https://api.github.com/gists/'+gid,{method:'PATCH',headers:ghHeaders(tok),body});
+    if(!r||r.status===404) r=await fetch('https://api.github.com/gists',{method:'POST',headers:ghHeaders(tok),body});
+    if(!r.ok) throw 0;
+    const j=await r.json();
+    localStorage.setItem('slova-gist-id',j.id);
+    localStorage.setItem('slova-cloud-ts',new Date().toLocaleString('ru-RU'));
+    if(!silent){ toast('Сохранено в облако'); renderCloud(); }
+  }catch(e){ if(!silent) toast('Не вышло — проверь токен и интернет'); }
+}
+async function cloudLoad(){
+  const tok=ghToken();
+  if(!tok) return toast('Сначала вставь GitHub токен');
+  try{
+    let gid=localStorage.getItem('slova-gist-id');
+    if(!gid){
+      const r=await fetch('https://api.github.com/gists?per_page=100',{headers:ghHeaders(tok)});
+      if(!r.ok) throw 0;
+      const g=(await r.json()).find(x=>x.files&&x.files[GIST_FILE]);
+      if(!g) return toast('В облаке пока нет копии — сначала сохрани');
+      gid=g.id; localStorage.setItem('slova-gist-id',gid);
+    }
+    const r2=await fetch('https://api.github.com/gists/'+gid,{headers:ghHeaders(tok)});
+    if(!r2.ok) throw 0;
+    const o=JSON.parse((await r2.json()).files[GIST_FILE].content);
+    if(!o.cards) throw 0;
+    S=Object.assign(S,o); syncCustom(); save(); render();
+    localStorage.setItem('slova-cloud-ts',new Date().toLocaleString('ru-RU'));
+    toast('Прогресс загружен из облака'); renderCloud();
+  }catch(e){ toast('Не вышло загрузить — проверь токен'); }
+}
+function renderCloud(){
+  const el=document.getElementById('ghTok');
+  if(el&&!el.value) el.value=localStorage.getItem('slova-gh-token')||'';
+  const ts=localStorage.getItem('slova-cloud-ts');
+  const n=document.getElementById('cloudTs');
+  if(n) n.textContent=ts?('Последняя синхронизация: '+ts):'Синхронизации ещё не было';
 }
 
 /* ============================================================
